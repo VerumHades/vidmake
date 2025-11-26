@@ -1,0 +1,14 @@
+C:\Users\filah\Documents\projects\csharp\Vidmake\bin\Debug\net9.0\Vidmake.exe
+C:\Users\filah\Documents\projects\csharp\Vidmake\bin\Debug\net9.0\Vidmake.deps.json
+C:\Users\filah\Documents\projects\csharp\Vidmake\bin\Debug\net9.0\Vidmake.runtimeconfig.json
+C:\Users\filah\Documents\projects\csharp\Vidmake\bin\Debug\net9.0\Vidmake.dll
+C:\Users\filah\Documents\projects\csharp\Vidmake\bin\Debug\net9.0\Vidmake.pdb
+C:\Users\filah\Documents\projects\csharp\Vidmake\obj\Debug\net9.0\Vidmake.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\filah\Documents\projects\csharp\Vidmake\obj\Debug\net9.0\Vidmake.AssemblyInfoInputs.cache
+C:\Users\filah\Documents\projects\csharp\Vidmake\obj\Debug\net9.0\Vidmake.AssemblyInfo.cs
+C:\Users\filah\Documents\projects\csharp\Vidmake\obj\Debug\net9.0\Vidmake.csproj.CoreCompileInputs.cache
+C:\Users\filah\Documents\projects\csharp\Vidmake\obj\Debug\net9.0\Vidmake.dll
+C:\Users\filah\Documents\projects\csharp\Vidmake\obj\Debug\net9.0\refint\Vidmake.dll
+C:\Users\filah\Documents\projects\csharp\Vidmake\obj\Debug\net9.0\Vidmake.pdb
+C:\Users\filah\Documents\projects\csharp\Vidmake\obj\Debug\net9.0\Vidmake.genruntimeconfig.cache
+C:\Users\filah\Documents\projects\csharp\Vidmake\obj\Debug\net9.0\ref\Vidmake.dll
