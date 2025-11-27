@@ -1,16 +1,26 @@
-# C# Animation Framework / Video Renderer
+# Vidmake - A C# Animation Rendering CLI
 
-A lightweight C# framework for programmatic video creation, inspired by **Manim**. Supports frame-by-frame rendering of drawable elements, animations via interpolators, and output to video through **FFmpeg**.
+A lightweight C# framework for programmatic video creation, inspired by [Manim](https://github.com/ManimCommunity/manim). Supports frame-by-frame rendering of drawable elements, animations via interpolators, and output to video through **FFmpeg**.
 
----
+## Runinning the app
 
-## Features
+You can find the [latest release here](https://github.com/VerumHades/vidmake/releases/latest)
+When you are ready check out what you can do in the video [scripts](#video-scripting)
+### Running the sample project
 
-- Draw and animate elements on a `Scene`.
-- Smooth transitions via `TransitionalTransform` and `IInterpolator` (e.g., linear interpolation).
-- Supports pixel formats: `Grayscale`, `RGB`, `RGBA`.
-- Output video using FFmpeg (`FfmpegVideoWriter`) or other `IVideoWriter` implementations.
-- Configurable via **JSON file** or command-line arguments.
+The quickest way to get setup. Includes the standalone binary, ffmpeg and a sample script with a config.
+
+1. Find `sample` in the latest release, download and unpack it.
+2. Navigate to the root folder (one with `config.json` in it), open a console;
+
+You can render the sample video using:
+```bash
+bin\\Vidmake --config config.json
+```
+
+### Getting just the standalone build
+
+You can download it in the latest releases under `standalone`.
 
 ---
 
@@ -33,7 +43,12 @@ You can configure the rendering pipeline using **command-line arguments** or a *
 Example:
 
 ```bash
-Vidmake --width 1920 --height 1080 --fps 60 --output-file video.mp4 --ffmpeg-path ffmpeg.exe --script myscene.csx
+Vidmake --width 1920 --height 1080 --fps 60 --output-file video.mp4 --ffmpeg-path ffmpeg.exe --script myscene.csx 
+```
+Or simply:
+
+```bash
+Vidmake --config config.json
 ```
 
 ### JSON Config
@@ -51,6 +66,8 @@ Instead of repeating arguments, you can provide a JSON configuration file. Examp
 ```
 
 Load the configuration in your CLI program, and it will override default values and command-line options.
+
+---
 
 ## Video scripting
 
@@ -127,3 +144,13 @@ var rect = new Rectangle();
 var rect = new Rectangle(100, 50); // green by default
 var rectRed = new Rectangle(100, 50, Pixel.Red);
 ```
+
+## Third-Party Software
+
+This project uses [FFmpeg](https://ffmpeg.org/) for video processing.
+
+- FFmpeg is licensed under the GNU General Public License (GPL) version 3.
+- The FFmpeg executable included in this distribution comes with its license.
+- You can find the full FFmpeg license as `ffmpeg/win32-x64.LICENSE` file included in this every sample release that includes it.
+
+Please note that FFmpeg is developed and maintained by the FFmpeg team. Our project does not modify FFmpeg.

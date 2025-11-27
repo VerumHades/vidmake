@@ -13,3 +13,8 @@
 - **RawRenderTarget**: Implements `RenderTarget` by rendering frames to an `IVideoWriter`; handles chunked parallel rendering for performance.
 - **IVideoWriter (interface)**: Abstracts video output; exposes `PixelFormat`, `FPS`, `Width`, `Height`, `FrameSizeInBytes`; methods `Write` and `Flush`.
 - **FfmpegVideoWriter**: Implements `IVideoWriter` by streaming raw frames to an FFmpeg process; supports `Grayscale`, `RGB`, `RGBA`.
+
+
+## Building
+
+dotnet publish -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true /p:PublishTrimmed=true -o ./publish

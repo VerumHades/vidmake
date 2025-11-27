@@ -1,0 +1,2 @@
+C:\Users\filah\Documents\projects\csharp\Vidmake\publish\Vidmake.pdb
+C:\Users\filah\Documents\projects\csharp\Vidmake\publish\Vidmake.exe

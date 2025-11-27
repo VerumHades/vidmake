@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Vidmake")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a41d780c43f0ee2b2235c76d8da2f7088b89104a")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+fd9d0169397dc36fb2d4a9d4248945c6db91f285")]
 [assembly: System.Reflection.AssemblyProductAttribute("Vidmake")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Vidmake")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
