@@ -1,2 +1,0 @@
-C:\Users\filah\Documents\projects\csharp\Vidmake\bin\Release\net9.0\win-x64\publish\Vidmake.pdb
-C:\Users\filah\Documents\projects\csharp\Vidmake\bin\Release\net9.0\win-x64\publish\Vidmake.exe
