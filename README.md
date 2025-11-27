@@ -1,0 +1,129 @@
+# C# Animation Framework / Video Renderer
+
+A lightweight C# framework for programmatic video creation, inspired by **Manim**. Supports frame-by-frame rendering of drawable elements, animations via interpolators, and output to video through **FFmpeg**.
+
+---
+
+## Features
+
+- Draw and animate elements on a `Scene`.
+- Smooth transitions via `TransitionalTransform` and `IInterpolator` (e.g., linear interpolation).
+- Supports pixel formats: `Grayscale`, `RGB`, `RGBA`.
+- Output video using FFmpeg (`FfmpegVideoWriter`) or other `IVideoWriter` implementations.
+- Configurable via **JSON file** or command-line arguments.
+
+---
+
+## Configuration
+
+You can configure the rendering pipeline using **command-line arguments** or a **JSON config file**.
+
+### Command-Line Arguments
+
+| Option          | Description |
+|-----------------|-------------|
+| `--width`       | Width of the video in pixels |
+| `--height`      | Height of the video in pixels |
+| `--fps`         | Frames per second |
+| `--output-file` | Output video file path |
+| `--ffmpeg-path` | Path to the FFmpeg executable |
+| `--script` | Path to the C# script (`.csx`) defining the scene and elements |
+| `--config` | Path a [json](#json-config) configuration file |
+
+Example:
+
+```bash
+Vidmake --width 1920 --height 1080 --fps 60 --output-file video.mp4 --ffmpeg-path ffmpeg.exe --script myscene.csx
+```
+
+### JSON Config
+
+Instead of repeating arguments, you can provide a JSON configuration file. Example:
+```json
+{
+    "width": 1920,
+    "height": 1080,
+    "fps": 60,
+    "outputFile": "video.mp4",
+    "ffmpegPath": "ffmpeg\\win-x86\\ffmpeg.exe",
+    "scriptFile": "myscene.csx"
+}
+```
+
+Load the configuration in your CLI program, and it will override default values and command-line options.
+
+## Video scripting
+
+In vidmake videos are written in C# scripts. See the available elements [here](#elements)
+
+### Quickstart Example
+
+Here’s a minimal scene script demonstrating how to animate rectangles using the framework:
+
+```csharp
+var rect = scene.Add(new Rectangle(100, 100)); // 1
+var rect2 = scene.Add(new Rectangle(10, 100)); // 1
+
+rect.Move(100, 100); // 2
+rect2.Move(1000, 0); // 2
+
+Go(1); // 3
+
+rect.Move(100, 200); // 4
+Go(1); // 5
+```
+
+Lets go trough it step by step:
+
+1. Two rectangles of sizes `(100,100)` and `(10,100)` are added to the scene
+2. Their next positions are set to `(100,100)` and `(1000, 0)` respectively
+3. The `Go` command is called with the duration of `1 second`, thus frames are rendered such that in 1 second both the rectangles have moved to their next positions.
+4. Only one rectangles next position is set (the other one will remain static during the next animation sequence)
+5. The `Go` command is called again, the one rectangle that is not in its designated position moves to it in the 1 second time frame.
+
+### Elements
+
+#### TransitionalTransform
+
+`TransitionalTransform` is an abstract base class for elements that have a **position and size** with smooth transitions between frames.  
+It stores both the **current state** (read-only) and the **next target state** (modifiable), allowing interpolation between them for animations.
+
+##### Usage
+
+- You can modify the `NextX`, `NextY`, `NextWidth`, `NextHeight` to set the target state.
+
+##### Attributes
+
+| Property        | Type   | Description |
+|-----------------|--------|-------------|
+| `CurrentX`      | float  | Current X position (read-only). |
+| `CurrentY`      | float  | Current Y position (read-only). |
+| `CurrentWidth`  | float  | Current width (read-only). |
+| `CurrentHeight` | float  | Current height (read-only). |
+| `NextX`         | float  | Target X position for next frame (modifiable). |
+| `NextY`         | float  | Target Y position for next frame (modifiable). |
+| `NextWidth`     | float  | Target width for next frame (modifiable). |
+| `NextHeight`    | float  | Target height for next frame (modifiable). |
+
+##### Key Methods
+
+| Method | Description |
+|--------|-------------|
+| `Move(float x, float y)` | Sets `NextX` and `NextY` for the element’s target position. |
+| `Resize(float width, float height)` | Sets `NextWidth` and `NextHeight` for the element’s target size. |
+
+#### Built-in elements
+
+##### Rectangle
+
+The `Rectangle` class is a simple drawable rectangle with a background color.
+Example:
+
+```csharp
+// Default 10x10 green rectangle
+var rect = new Rectangle();
+
+// Custom size (width x height) with optional background color
+var rect = new Rectangle(100, 50); // green by default
+var rectRed = new Rectangle(100, 50, Pixel.Red);
+```

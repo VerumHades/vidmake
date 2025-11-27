@@ -1,8 +1,26 @@
 {
   "version": 2,
-  "dgSpecHash": "5CSWSooERKU=",
+  "dgSpecHash": "/g9sKyaBpm8=",
   "success": true,
   "projectFilePath": "C:\\Users\\filah\\Documents\\projects\\csharp\\Vidmake\\Vidmake.csproj",
-  "expectedPackageFiles": [],
-  "logs": []
+  "expectedPackageFiles": [
+    "C:\\Users\\filah\\.nuget\\packages\\microsoft.codeanalysis.analyzers\\3.11.0\\microsoft.codeanalysis.analyzers.3.11.0.nupkg.sha512",
+    "C:\\Users\\filah\\.nuget\\packages\\microsoft.codeanalysis.common\\5.0.0\\microsoft.codeanalysis.common.5.0.0.nupkg.sha512",
+    "C:\\Users\\filah\\.nuget\\packages\\microsoft.codeanalysis.csharp\\5.0.0\\microsoft.codeanalysis.csharp.5.0.0.nupkg.sha512",
+    "C:\\Users\\filah\\.nuget\\packages\\microsoft.codeanalysis.csharp.scripting\\5.0.0\\microsoft.codeanalysis.csharp.scripting.5.0.0.nupkg.sha512",
+    "C:\\Users\\filah\\.nuget\\packages\\microsoft.codeanalysis.scripting.common\\5.0.0\\microsoft.codeanalysis.scripting.common.5.0.0.nupkg.sha512",
+    "C:\\Users\\filah\\.nuget\\packages\\system.commandline\\2.0.0-beta4.22272.1\\system.commandline.2.0.0-beta4.22272.1.nupkg.sha512"
+  ],
+  "logs": [
+    {
+      "code": "NU1603",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Vidmake depends on System.CommandLine (>= 2.0.0-beta4) but System.CommandLine 2.0.0-beta4 was not found. System.CommandLine 2.0.0-beta4.22272.1 was resolved instead.",
+      "libraryId": "System.CommandLine",
+      "targetGraphs": [
+        "net9.0"
+      ]
+    }
+  ]
 }

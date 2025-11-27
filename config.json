@@ -1,0 +1,8 @@
+{
+  "width": 1920,
+  "height": 1080,
+  "fps": 60,
+  "outputFile": "video.mp4",
+  "ffmpegPath": "ffmpeg\\win-x86\\ffmpeg.exe",
+  "scriptFile": "animation.csx"
+}
