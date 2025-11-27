@@ -2,6 +2,13 @@
 
 A lightweight C# framework for programmatic video creation, inspired by [Manim](https://github.com/ManimCommunity/manim). Supports frame-by-frame rendering of drawable elements, animations via interpolators, and output to video through **FFmpeg**.
 
+## Warning
+
+**Rendering scripts are not sandboxed.**  
+
+Users are responsible for the content they render. Do **not** run scripts, render scenes, or process files that you do not understand or trust, as they may execute unsafe operations, modify your system, or access sensitive data.  
+Use at your own risk. The author is not liable for any damage, data loss, or security issues resulting from its use.
+
 ## Runinning the app
 
 You can find the [latest release here](https://github.com/VerumHades/vidmake/releases/latest)

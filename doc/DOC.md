@@ -15,6 +15,11 @@
 - **FfmpegVideoWriter**: Implements `IVideoWriter` by streaming raw frames to an FFmpeg process; supports `Grayscale`, `RGB`, `RGBA`.
 
 
-## Building
+## Publishing
 
-dotnet publish -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true /p:PublishTrimmed=true -o ./publish
+Use the release_builder.py script
+
+
+## Running in debug 
+
+dotnet run -- --config template\\release\\config.json --script template\\release\\animation.csx --ffmpeg-path template\\release\\ffmpeg\\ffmpeg-win32-x64.exe

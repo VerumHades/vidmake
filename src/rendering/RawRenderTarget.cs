@@ -72,18 +72,27 @@ namespace AbstractRendering
             foreach (var element in elements)
             {
                 var transform = element.GetInterpolated(element.AnimationInterpolator, animationPercentage);
-                
-                var area = new DrawableArea(
-                    target,
-                    videoWriter.Width,
-                    transform.X,
-                    transform.Y,
-                    transform.Width,
-                    transform.Height,
-                    videoWriter.PixelFormat
-                );
 
-                element.Render(ref area, animationPercentage);
+                try
+                {
+                    var area = new DrawableArea(
+                        target,
+                        videoWriter.Width,
+                        transform.X,
+                        transform.Y,
+                        transform.Width,
+                        transform.Height,
+                        videoWriter.PixelFormat
+                    );
+
+                    element.Render(ref area, animationPercentage);
+
+                }
+                catch (ArgumentOutOfRangeException) // Happens when the area is out of bounds
+                {
+
+                }
+
             }
         }
     }

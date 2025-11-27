@@ -44,16 +44,36 @@ namespace AbstractRendering
             int fullImageWidth,
             int x, int y,
             int width, int height,
-            PixelFormat format)
+            PixelFormat format
+        )
         {
-            if ((uint)x + (uint)width > (uint)fullImageWidth)
-                throw new ArgumentOutOfRangeException(nameof(width));
+            // Adjust negative offsets and reduce width/height accordingly
+            if (x < 0)
+            {
+                width += x; // x is negative, so width is reduced
+                x = 0;
+            }
+            if (y < 0)
+            {
+                height += y; // y is negative, so height is reduced
+                y = 0;
+            }
+
+            // Validate width and height after adjustment
+            if (width <= 0 || height <= 0)
+                throw new ArgumentOutOfRangeException("Drawable area must have positive width and height after adjustment.");
+
+            // Clamp width/height if area extends beyond full image
+            if (x + width > fullImageWidth)
+                width = fullImageWidth - x;
+            if (width <= 0)
+                throw new  ArgumentOutOfRangeException("Drawable area width is out of bounds.");
 
             int bpp = (int)format;
 
             int requiredLength = fullImageWidth * (y + height) * bpp;
             if (fullImageBuffer.Length < requiredLength)
-                throw new ArgumentException("Buffer too small for the specified subarea.");
+                throw new  ArgumentOutOfRangeException("Buffer too small for the specified subarea.");
 
             fullWidth = fullImageWidth;
             offsetX = x;
@@ -81,10 +101,13 @@ namespace AbstractRendering
 
         /// <summary>
         /// Sets a single pixel at (x, y) with the given color.
-        /// Handles Grayscale, RGB, and RGBA formats.
+        /// Ignores coordinates outside the drawable area, including negative values.
         /// </summary>
         public void SetPixel(int x, int y, Pixel pixel)
         {
+            if (x < 0 || y < 0 || x >= Width || y >= Height)
+                return; // ignore out-of-bounds
+
             int idx = GetIndex(x, y);
             switch (Format)
             {
@@ -92,12 +115,12 @@ namespace AbstractRendering
                     buffer[idx] = pixel.R; // Use R as luminance
                     break;
                 case PixelFormat.RGB:
-                    buffer[idx]     = pixel.R;
+                    buffer[idx] = pixel.R;
                     buffer[idx + 1] = pixel.G;
                     buffer[idx + 2] = pixel.B;
                     break;
                 case PixelFormat.RGBA:
-                    buffer[idx]     = pixel.R;
+                    buffer[idx] = pixel.R;
                     buffer[idx + 1] = pixel.G;
                     buffer[idx + 2] = pixel.B;
                     buffer[idx + 3] = pixel.A;
@@ -107,43 +130,27 @@ namespace AbstractRendering
 
         /// <summary>
         /// Sets all pixels in a specific row to the given color.
+        /// Ignores rows outside the drawable area, including negative indices.
         /// </summary>
         public void SetRow(int y, Pixel pixel)
         {
-            if ((uint)y >= (uint)Height)
-                throw new ArgumentOutOfRangeException();
-
-            int bpp = BytesPerPixel;
-            Span<byte> row = buffer.Slice(y * fullWidth * bpp, Width * bpp);
+            if (y < 0 || y >= Height)
+                return; // ignore out-of-bounds
 
             for (int x = 0; x < Width; x++)
             {
-                int idx = x * bpp;
-                switch (Format)
-                {
-                    case PixelFormat.Grayscale: row[idx] = pixel.R; break;
-                    case PixelFormat.RGB:
-                        row[idx]     = pixel.R;
-                        row[idx + 1] = pixel.G;
-                        row[idx + 2] = pixel.B;
-                        break;
-                    case PixelFormat.RGBA:
-                        row[idx]     = pixel.R;
-                        row[idx + 1] = pixel.G;
-                        row[idx + 2] = pixel.B;
-                        row[idx + 3] = pixel.A;
-                        break;
-                }
+                SetPixel(x, y, pixel);
             }
         }
 
         /// <summary>
         /// Sets all pixels in a specific column to the given color.
+        /// Ignores columns outside the drawable area, including negative indices.
         /// </summary>
         public void SetColumn(int x, Pixel pixel)
         {
-            if ((uint)x >= (uint)Width)
-                throw new ArgumentOutOfRangeException();
+            if (x < 0 || x >= Width)
+                return; // ignore out-of-bounds
 
             for (int y = 0; y < Height; y++)
                 SetPixel(x, y, pixel);
