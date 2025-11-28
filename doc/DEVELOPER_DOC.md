@@ -58,6 +58,31 @@ When frames are rendered the elements move using their interpolation functions:
 The rendering sequence for an element goes like this:
 ![img](images/pipeline/rendering_of_a_single_frame.png) ![img](images/pipeline/out_of_bounds_clipping.png)
 
+#### DrawableArea
+
+![img](images/pipeline/drawable_area.png) 
+
+| Member / Method | Type | Description |
+|-----------------|------|-------------|
+| `Width` | `int` | Width of the subarea in pixels. |
+| `Height` | `int` | Height of the subarea in pixels. |
+| `Format` | `PixelFormat` | Pixel format of the area (Grayscale, RGB, RGBA). |
+| `BytesPerPixel` | `int` | Number of bytes per pixel, derived from `Format`. |
+| `DrawableArea(...)` | Constructor | Creates a subrectangle within a full image buffer. Both the subarea offset (`subX`, `subY`) and local coordinates may be negative. Throws if dimensions are invalid or buffer too small. |
+| `SetPixel(int x, int y, Pixel pixel)` | `void` | Sets a pixel using local coordinates. Writes only if the resulting position lies within both the subarea and full image. |
+| `SetRow(int y, Pixel pixel)` | `void` | Sets an entire row of pixels in the subarea. Local `y` may be negative. |
+| `SetColumn(int x, Pixel pixel)` | `void` | Sets an entire column of pixels in the subarea. Local `x` may be negative. |
+| `Fill(Pixel pixel)` | `void` | Fills the entire subarea with a single color, respecting clipping against both the subarea and full image. |
+
+> The subarea may have negative offsets, and local pixel coordinates may also be negative.  
+> All writes are clipped to the subarea and the full image to avoid buffer overflows.  
+> Supports multiple pixel formats (Grayscale = 1 byte, RGB = 3 bytes, RGBA = 4 bytes).  
+> Provides convenient methods for row, column, or full-area fills while respecting clipping.
+
+The `DrawableArea` always accepts a whole RGBA pixel as an argument, but depending on mode it behaves like this (Only the blue components are used)
+![img](images/pipeline/pixel_formats.png)
+
+
 ### IVideoWriter
 
 The video writer defines what pixel formats are supported,
