@@ -7,7 +7,7 @@ namespace AbstractRendering
     public class RawRenderTarget : RenderTarget
     {
         // Number of frames to process in a single parallel chunk.
-        private const int chunkSize = 64;
+        private readonly int maxParallelRenderFrameCount;
 
         // Buffer to hold all frames for a chunk before sending to the video writer.
         private byte[] framesBuffer;
@@ -19,10 +19,15 @@ namespace AbstractRendering
         /// Constructs a RawRenderTarget that writes to the given video writer.
         /// </summary>
         /// <param name="videoWriter">The video writer to output frames to.</param>
-        public RawRenderTarget(IVideoWriter videoWriter)
+        /// <param name="videoWriter">The video writer to output frames to.</param>
+        public RawRenderTarget(IVideoWriter videoWriter, IRenderStateReporter? reporter = null, int maxParallelRenderFrameCount = 64)
         {
+            RenderStateReporter = reporter;
+            RenderStateReporter?.RenderBegin(videoWriter);
+
+            this.maxParallelRenderFrameCount = maxParallelRenderFrameCount;
             this.videoWriter = videoWriter;
-            framesBuffer = new byte[videoWriter.FrameSizeInBytes * chunkSize];
+            framesBuffer = new byte[videoWriter.FrameSizeInBytes * maxParallelRenderFrameCount];
         }
 
         /// <summary>
@@ -34,14 +39,16 @@ namespace AbstractRendering
         public override void AddElementFrames(IReadOnlyList<Element> elements, int seconds)
         {
             int frameCount = seconds * videoWriter.FPS; // total number of frames to render
-            int totalChunks = (int)Math.Ceiling((double)frameCount / chunkSize); // number of chunks
+            int totalChunks = (int)Math.Ceiling((double)frameCount / maxParallelRenderFrameCount); // number of chunks
 
+            RenderStateReporter?.RenderSequenceBegin(frameCount);
+            
             for (int chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++)
             {
                 Array.Clear(framesBuffer, 0, framesBuffer.Length);
 
-                int startFrame = chunkIndex * chunkSize;
-                int endFrame = Math.Min(startFrame + chunkSize, frameCount);
+                int startFrame = chunkIndex * maxParallelRenderFrameCount;
+                int endFrame = Math.Min(startFrame + maxParallelRenderFrameCount, frameCount);
                 int currentChunkSize = endFrame - startFrame;
 
                 Parallel.For(0, currentChunkSize, i =>
@@ -56,9 +63,11 @@ namespace AbstractRendering
                 });
 
                 videoWriter.Write(framesBuffer, currentChunkSize);
+                RenderStateReporter?.FrameChunkRendered(chunkIndex, currentChunkSize);
             }
 
-            videoWriter.Flush();
+            //videoWriter.Flush();
+            RenderStateReporter?.RenderSequenceEnd();
         }
 
         /// <summary>
@@ -73,26 +82,18 @@ namespace AbstractRendering
             {
                 var transform = element.GetInterpolated(element.AnimationInterpolator, animationPercentage);
 
-                try
-                {
-                    var area = new DrawableArea(
-                        target,
-                        videoWriter.Width,
-                        transform.X,
-                        transform.Y,
-                        transform.Width,
-                        transform.Height,
-                        videoWriter.PixelFormat
-                    );
+                var area = new DrawableArea(
+                    target,
+                    videoWriter.Width,
+                    videoWriter.Height,
+                    transform.X,
+                    transform.Y,
+                    transform.Width,
+                    transform.Height,
+                    videoWriter.PixelFormat
+                );
 
-                    element.Render(ref area, animationPercentage);
-
-                }
-                catch (ArgumentOutOfRangeException) // Happens when the area is out of bounds
-                {
-
-                }
-
+                element.Render(ref area, animationPercentage);
             }
         }
     }

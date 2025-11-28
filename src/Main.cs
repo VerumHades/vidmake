@@ -34,7 +34,6 @@ class Program
         root.SetHandler(
             async (configPath, width, height, fps, outputFile, ffmpegPath, scriptPath) =>
             {
-                // 1. Load JSON config if provided
                 VideoConfig config = new VideoConfig();
                 if (!string.IsNullOrEmpty(configPath))
                 {
@@ -45,10 +44,9 @@ class Program
                     }
 
                     string json = await File.ReadAllTextAsync(configPath);
-                    config = JsonSerializer.Deserialize<VideoConfig>(json);
+                    config = JsonSerializer.Deserialize<VideoConfig>(json) ?? config;
                 }
 
-                // 2. Apply command-line overrides
                 if (width != 1920) config.Width = width;
                 if (height != 1080) config.Height = height;
                 if (fps != 30) config.FPS = fps;
@@ -56,7 +54,6 @@ class Program
                 if (!string.IsNullOrEmpty(ffmpegPath)) config.FfmpegPath = ffmpegPath;
                 if (!string.IsNullOrEmpty(scriptPath)) config.ScriptFile = scriptPath;
 
-                // 3. Validate required parameters
                 if (string.IsNullOrEmpty(config.OutputFile) ||
                     string.IsNullOrEmpty(config.FfmpegPath) ||
                     string.IsNullOrEmpty(config.ScriptFile))
@@ -86,9 +83,9 @@ class Program
                     config.FfmpegPath
                 );
 
-                var target = new RawRenderTarget(videoWriter);
-                var scene = new Scene(target);
+                var target = new RawRenderTarget(videoWriter, new ConsoleProgressReporter());
 
+                var scene = new Scene(target);
                 var invoker = new ScriptInvoker<Scene>(scene);
                 invoker.Execute(File.ReadAllText(config.ScriptFile));
                 videoWriter.FinishVideo();

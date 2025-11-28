@@ -1,0 +1,121 @@
+# Architecture
+
+## Scripting API
+
+## Rendering PIPELINE
+
+![img](images/pipeline/overview.png)
+
+### Element
+
+| Member / Method | Type | Description |
+|-----------------|------|-------------|
+| `AnimationInterpolator` | `IInterpolator` | Gets the interpolator used to calculate intermediate states between `Current` and `Next` values for smooth animations. Defaults to `LinearInterpolator`. |
+| `Render(ref DrawableArea area, float animationPercentage)` | `abstract void` | Abstract method that renders the element into a `DrawableArea` for a specific animation frame. Derived classes must implement this to define the element's drawing behavior. The `animationPercentage` parameter represents progress of the animation (0.0 = start, 1.0 = end). |
+
+> `Element` is an abstract base class for all renderable objects in a `Scene`.  
+> Inherits from `TransitionalTransform` (position/size animation) and implements `ISurface`.  
+> Concrete elements must implement `Render` to produce visual output in a `DrawableArea`.  
+> The `AnimationInterpolator` can be replaced with custom interpolators to achieve non-linear animation effects.
+
+Everything actor in a scene is an element.
+![img](images/pipeline/element.png)
+Elements can and likely will have a set next positions:
+![img](images/pipeline/element_next_position.png)
+
+### Scene
+
+| Member / Method | Type | Description |
+|-----------------|------|-------------|
+| `elements` | `List<Element>` | Private list storing all elements in the scene. |
+| `renderTarget` | `RenderTarget` | Private reference to the target used for rendering frames. |
+| `Scene(RenderTarget renderTarget)` | Constructor | Initializes a new Scene with the specified `RenderTarget`. |
+| `Add<T>(T element)` | `T` | Adds an existing element instance to the scene. Returns the added element. `<T>` must be of type `Element`. |
+| `Go(int seconds)` | `void` | Advances the scene by generating frames for all elements over the given duration (in seconds). Applies each element's next state after rendering. |
+
+If we add an `Element` to a scene `Scene`, it is now registered its animations will be taken into account.
+It is important to realize that scenes **do not have a size**, they are simple collections of elements.
+![img](images/pipeline/scenes_dont_have_a_size.png)
+
+> The `elements` list is internal to the scene; elements should be added via `Add<T>`.
+> `Go` should be called for each time step or animation frame to progress the scene.
+
+### RenderTarget
+
+| Member / Method | Type | Description |
+|-----------------|------|-------------|
+| `RenderStateReporter` | `IRenderStateReporter?` | Optional property to report rendering state, progress, and frame events. |
+| `AddElementFrames(IReadOnlyList<Element> elements, int seconds)` | `abstract void` | Abstract method that generates frames for the provided elements over a given duration in seconds. Each element may have "Current" and "Next" states that should be interpolated or applied over the time span. |
+
+> `RenderTarget` is an abstract base class. Concrete implementations should define how frames are actually produced.  
+> The `RenderStateReporter` can be used to track rendering progress for sequences (all frames of one animation) and chunks.
+
+
+And whene a `Scene.Go` function is called, the number of frames to render is calculated:
+![img](images/pipeline/frame_count_calculation.png)
+When frames are rendered the elements move using their interpolation functions:
+![img](images/pipeline/element_position_interpolation.png)
+The rendering sequence for an element goes like this:
+![img](images/pipeline/rendering_of_a_single_frame.png) ![img](images/pipeline/out_of_bounds_clipping.png)
+
+### IVideoWriter
+
+The video writer defines what pixel formats are supported,
+
+#### PixelFormat Enum
+
+| Value | Bytes per Pixel | Description |
+|-------|----------------|-------------|
+| `Grayscale` | 1 | 8-bit grayscale (1 byte per pixel). |
+| `RGB` | 3 | 24-bit RGB (3 bytes per pixel). |
+| `RGBA` | 4 | 32-bit RGBA (4 bytes per pixel, includes alpha channel). |
+
+#### IVideoWriter Interface
+
+| Member / Method | Type | Description |
+|-----------------|------|-------------|
+| `PixelFormat` | `PixelFormat` | The pixel format of the video frames (Grayscale, RGB, or RGBA). |
+| `FPS` | `int` | Frames per second of the output video. |
+| `Width` | `int` | Width of the video in pixels. |
+| `Height` | `int` | Height of the video in pixels. |
+| `FrameSizeInBytes` | `int` | Size of a single frame in bytes (Width × Height × BytesPerPixel). |
+| `Write(byte[] frameData, int frameCount)` | `void` | Writes one or more raw frames to the video output. `frameData` contains the frame bytes; `frameCount` specifies the number of frames in the array. |
+| `Flush()` | `void` | Flushes any buffered frame data to the output, ensuring all frames are written. |
+
+> `IVideoWriter` implementations are responsible for converting raw frame data into a video format.  
+> `FrameSizeInBytes` can be used to allocate frame buffers correctly.  
+> Always call `Flush()` after writing frames to ensure the video is finalized properly.
+
+#### The ffmpeg implementation
+
+There is one builtin implementation of a video writer, thats the `FfmpegWriter`,
+it uses an ffmpeg cli executable, opens it as a process and streams raw frames into it.
+
+| Member / Method | Type | Description |
+|-----------------|------|-------------|
+| `PixelFormat` | `PixelFormat` | Pixel format of the video frames (Grayscale, RGB, RGBA). |
+| `FPS` | `int` | Frames per second of the output video. |
+| `Width` | `int` | Width of the video in pixels. |
+| `Height` | `int` | Height of the video in pixels. |
+| `FrameSizeInBytes` | `int` | Size of one frame in bytes (`Width × Height × BytesPerPixel`). |
+| `FfmpegVideoWriter(int width, int height, int targetFPS, PixelFormat pixelFormat, string outputFilename, string ffmpegPath)` | Constructor | Starts an FFmpeg process and prepares it to receive raw frames. Throws if FFmpeg is not found. |
+| `Write(byte[] bytes, int frameCount)` | `void` | Writes a sequence of raw frames to FFmpeg. Throws if the buffer size is insufficient. |
+| `Flush()` | `void` | Flushes any buffered frame data to FFmpeg. |
+| `FinishVideo()` | `void` | Finalizes the video by closing the FFmpeg input stream and waiting for FFmpeg to exit. Throws if FFmpeg exits with an error. |
+| `Dispose()` | `void` | Disposes the writer and ensures the video is finalized. |
+
+> Automatically uses GPU-accelerated encoding via `h264_nvenc`.  
+> Reads FFmpeg `stderr` asynchronously to prevent pipe blocking.  
+> Ensure `FinishVideo()` or `Dispose()` is called after writing frames to properly close the video file.  
+> `Write()` expects the frame data to be contiguous and match the `FrameSizeInBytes` × `frameCount`.
+
+![img](images/pipeline/fmmpeg_writer_implementation.png)
+
+## Publishing
+
+Use the release_builder.py script
+
+
+## Running in debug 
+
+dotnet run -- --config template\\release\\config.json --script template\\release\\animation.csx --ffmpeg-path template\\release\\ffmpeg\\ffmpeg-win32-x64.exe --output-file output\\video.mp4

@@ -52,16 +52,38 @@ namespace AbstractRendering
                 StartInfo = new ProcessStartInfo
                 {
                     FileName = this.ffmpegPath,
-                    Arguments = $"-y -f rawvideo -pix_fmt {GetFormatString(PixelFormat)} -s {width}x{height} -r {targetFPS} -i - -c:v libx264 -pix_fmt yuv420p {outputFilename}",
+                    Arguments =
+                            $"-y " +
+                            $"-f rawvideo " +
+                            $"-pix_fmt {GetFormatString(PixelFormat)} " +
+                            $"-s:v {width}x{height} " +
+                            $"-r {targetFPS} " +
+                            $"-i pipe:0 " +
+                            $"-c:v h264_nvenc " +
+                            $"-preset fast " +
+                            $"-pix_fmt yuv420p " +
+                            $"\"{outputFilename}\"",
                     UseShellExecute = false,
                     RedirectStandardInput = true,
                     RedirectStandardError = true,
+                    RedirectStandardOutput = false,
                     CreateNoWindow = true
                 }
             };
 
             ffmpegProcess.Start();
             ffmpegInputStream = ffmpegProcess.StandardInput.BaseStream;
+
+                        // Read stderr asynchronously to prevent blocking
+            _ = Task.Run(async () =>
+            {
+                string? line;
+                while ((line = await  ffmpegProcess.StandardError.ReadLineAsync()) != null)
+                {
+                    
+                }
+            });
+
         }
 
         /// <summary>
