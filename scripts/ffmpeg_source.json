@@ -1,0 +1,43 @@
+{
+    "Windows": [
+        {
+            "url": "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-full.zip",
+            "sha256": "",
+            "desc": "Gyan.dev Windows full standalone"
+        },
+        {
+            "url": "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip",
+            "sha256": "",
+            "desc": "Gyan.dev Windows essentials standalone"
+        },
+        {
+            "url": "https://github.com/BtbN/FFmpeg-Builds/releases/latest/download/ffmpeg-n6.1-latest-win64-gpl-static.zip",
+            "sha256": "",
+            "desc": "BtbN Windows static standalone"
+        }
+    ],
+    "Linux": [
+        {
+            "url": "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz",
+            "sha256": "abda8d77ce8309141f83ab8edf0596834087c52467f6badf376a6a2a4c87cf67",
+            "desc": "Linux x86_64 static build"
+        },
+        {
+            "url": "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-i686-static.tar.xz",
+            "sha256": "",
+            "desc": "Linux i686 static build"
+        }
+    ],
+    "Darwin": [
+        {
+            "url": "https://evermeet.cx/ffmpeg/getrelease/zip",
+            "sha256": "",
+            "desc": "Evermeet macOS standalone build"
+        },
+        {
+            "url": "https://github.com/BtbN/FFmpeg-Builds/releases/latest/download/ffmpeg-n6.1-latest-macos64-gpl-static.zip",
+            "sha256": "",
+            "desc": "BtbN macOS static standalone"
+        }
+    ]
+}

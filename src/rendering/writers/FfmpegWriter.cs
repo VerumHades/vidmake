@@ -47,6 +47,7 @@ namespace AbstractRendering
             if (!File.Exists(ffmpegPath))
                 throw new FileNotFoundException("FFmpeg executable not found", ffmpegPath);
 
+            string? encoder = GetHardwareEncoder();
             ffmpegProcess = new Process
             {
                 StartInfo = new ProcessStartInfo
@@ -59,7 +60,7 @@ namespace AbstractRendering
                             $"-s:v {width}x{height} " +
                             $"-r {targetFPS} " +
                             $"-i pipe:0 " +
-                            $"-c:v h264_nvenc " +
+                            (encoder != null ? $"-c:v {encoder} " : "") +
                             $"-preset fast " +
                             $"-pix_fmt yuv420p " +
                             $"\"{outputFilename}\"",
@@ -74,16 +75,62 @@ namespace AbstractRendering
             ffmpegProcess.Start();
             ffmpegInputStream = ffmpegProcess.StandardInput.BaseStream;
 
-                        // Read stderr asynchronously to prevent blocking
+            // Read stderr asynchronously to prevent blocking
             _ = Task.Run(async () =>
             {
                 string? line;
-                while ((line = await  ffmpegProcess.StandardError.ReadLineAsync()) != null)
+                while ((line = await ffmpegProcess.StandardError.ReadLineAsync()) != null)
                 {
-                    
+                    Console.WriteLine(line);
                 }
             });
 
+        }
+
+        private string? GetHardwareEncoder()
+        {
+            string[] knownHwEncoders = new string[]
+            {
+                "h264_nvenc",   // NVIDIA
+                "hevc_nvenc",   // NVIDIA
+                "h264_qsv",     // Intel QuickSync
+                "hevc_qsv",     // Intel QuickSync
+                "h264_vaapi",   // VAAPI (Linux)
+                "hevc_vaapi",   // VAAPI (Linux)
+                "h264_videotoolbox", // macOS
+                "hevc_videotoolbox"  // macOS
+            };
+
+            try
+            {
+                ProcessStartInfo psi = new ProcessStartInfo
+                {
+                    FileName = ffmpegPath,
+                    Arguments = "-encoders",
+                    RedirectStandardOutput = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                };
+
+                using (Process? process = Process.Start(psi))
+                {
+                    string output = process.StandardOutput.ReadToEnd();
+                    process.WaitForExit();
+
+                    // Check if any known encoder is in the output
+                    foreach (string encoder in knownHwEncoders)
+                    {
+                        if (output.Contains(encoder))
+                            return encoder;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error running ffmpeg: " + ex.Message);
+            }
+
+            return null; // none found
         }
 
         /// <summary>
@@ -110,11 +157,11 @@ namespace AbstractRendering
             ffmpegInputStream.Flush();
             ffmpegInputStream.Close();
 
-            string errors = ffmpegProcess.StandardError.ReadToEnd();
+            //string errors = ffmpegProcess.StandardError.ReadToEnd();
             ffmpegProcess.WaitForExit();
 
             if (ffmpegProcess.ExitCode != 0)
-                throw new Exception($"FFmpeg exited with code {ffmpegProcess.ExitCode}: {errors}");
+                throw new Exception($"FFmpeg exited with code {ffmpegProcess.ExitCode}.");
 
             disposed = true;
         }

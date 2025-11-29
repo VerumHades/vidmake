@@ -129,7 +129,6 @@ it uses an ffmpeg cli executable, opens it as a process and streams raw frames i
 | `FinishVideo()` | `void` | Finalizes the video by closing the FFmpeg input stream and waiting for FFmpeg to exit. Throws if FFmpeg exits with an error. |
 | `Dispose()` | `void` | Disposes the writer and ensures the video is finalized. |
 
-> Automatically uses GPU-accelerated encoding via `h264_nvenc`.  
 > Reads FFmpeg `stderr` asynchronously to prevent pipe blocking.  
 > Ensure `FinishVideo()` or `Dispose()` is called after writing frames to properly close the video file.  
 > `Write()` expects the frame data to be contiguous and match the `FrameSizeInBytes` × `frameCount`.
@@ -139,8 +138,3 @@ it uses an ffmpeg cli executable, opens it as a process and streams raw frames i
 ## Publishing
 
 Use the release_builder.py script
-
-
-## Running in debug 
-
-dotnet run -- --config template\\release\\config.json --script template\\release\\animation.csx --ffmpeg-path template\\release\\ffmpeg\\ffmpeg-win32-x64.exe --output-file output\\video.mp4

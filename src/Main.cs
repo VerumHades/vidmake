@@ -88,7 +88,6 @@ class Program
                 var scene = new Scene(target);
                 var invoker = new ScriptInvoker<Scene>(scene);
                 invoker.Execute(File.ReadAllText(config.ScriptFile));
-                videoWriter.FinishVideo();
 
                 Console.WriteLine("Video rendering complete!");
             },
