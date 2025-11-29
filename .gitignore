@@ -2,4 +2,4 @@ bin/
 obj/
 output/
 ffmpeg_bin/
-template/ffmpeg/
+template/release/ffmpeg/
