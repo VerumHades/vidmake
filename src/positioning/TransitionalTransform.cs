@@ -1,123 +1,73 @@
 namespace AbstractRendering
 {
     /// <summary>
-    /// Represents a transform with smooth transitions between states.
-    /// Holds both the current state (read-only) and the next target state (modifiable),
-    /// allowing interpolation between them over time.
+    /// Represents a transform whose state transitions smoothly between frames.
+    /// Uses TransitionalProperty to store independent current/next values for
+    /// position and size, enabling easy interpolation.
     /// </summary>
     public abstract class TransitionalTransform
     {
-        // --- Current state (read-only) ---
-        /// <summary>
-        /// Current X position (read-only).
-        /// Updated only when ApplyNext() is called.
-        /// </summary>
-        public float CurrentX { get; private set; }
+        // Position properties
+        public TransitionalProperty<float> X { get; }
+        public TransitionalProperty<float> Y { get; }
+
+        // Size properties
+        public TransitionalProperty<float> Width { get; }
+        public TransitionalProperty<float> Height { get; }
 
         /// <summary>
-        /// Current Y position (read-only).
-        /// Updated only when ApplyNext() is called.
-        /// </summary>
-        public float CurrentY { get; private set; }
-
-        /// <summary>
-        /// Current width (read-only).
-        /// Updated only when ApplyNext() is called.
-        /// </summary>
-        public float CurrentWidth { get; private set; }
-
-        /// <summary>
-        /// Current height (read-only).
-        /// Updated only when ApplyNext() is called.
-        /// </summary>
-        public float CurrentHeight { get; private set; }
-
-        // --- Next state (read/write) ---
-        /// <summary>
-        /// Target X position for the next frame or transition.
-        /// Can be freely modified.
-        /// </summary>
-        public float NextX { get; set; }
-
-        /// <summary>
-        /// Target Y position for the next frame or transition.
-        /// Can be freely modified.
-        /// </summary>
-        public float NextY { get; set; }
-
-        /// <summary>
-        /// Target width for the next frame or transition.
-        /// Can be freely modified.
-        /// </summary>
-        public float NextWidth { get; set; }
-
-        /// <summary>
-        /// Target height for the next frame or transition.
-        /// Can be freely modified.
-        /// </summary>
-        public float NextHeight { get; set; }
-
-        /// <summary>
-        /// Initializes a new transitional transform with optional starting position and size.
-        /// Both Current and Next values are initialized to the same starting values.
+        /// Creates a new TransitionalTransform with starting values.
+        /// Current and Next values for all properties are initialized to the same values.
         /// </summary>
         public TransitionalTransform(float x = 0, float y = 0, float width = 0, float height = 0)
         {
-            CurrentX = NextX = x;
-            CurrentY = NextY = y;
-            CurrentWidth = NextWidth = width;
-            CurrentHeight = NextHeight = height;
+            X = new TransitionalProperty<float>(x);
+            Y = new TransitionalProperty<float>(y);
+            Width = new TransitionalProperty<float>(width);
+            Height = new TransitionalProperty<float>(height);
         }
 
         /// <summary>
-        /// Computes the interpolated transform for a given ratio using a provided interpolator.
+        /// Computes an interpolated transform using the provided interpolation method.
         /// </summary>
-        /// <param name="interpolator">The interpolation strategy (linear, easing, etc.).</param>
-        /// <param name="ratio">Progress ratio between 0 (current) and 1 (next).</param>
-        /// <returns>A PhysicalTransform representing the interpolated state.</returns>
         public PhysicalTransform GetInterpolated(IInterpolator interpolator, float ratio)
         {
             return new()
             {
-                X = (int)interpolator.Interpolate(CurrentX, NextX, ratio),
-                Y = (int)interpolator.Interpolate(CurrentY, NextY, ratio),
-                Width = (int)interpolator.Interpolate(CurrentWidth, NextWidth, ratio),
-                Height = (int)interpolator.Interpolate(CurrentHeight, NextHeight, ratio)
+                X = (int)interpolator.Interpolate(X.Current, X.Next, ratio),
+                Y = (int)interpolator.Interpolate(Y.Current, Y.Next, ratio),
+                Width = (int)interpolator.Interpolate(Width.Current, Width.Next, ratio),
+                Height = (int)interpolator.Interpolate(Height.Current, Height.Next, ratio)
             };
         }
 
         /// <summary>
-        /// Copies all "Next" values into the "Current" values.
-        /// Effectively commits the next state as the current state.
+        /// Commits all next-state values to current-state values.
         /// </summary>
         public void ApplyNext()
         {
-            CurrentX = NextX;
-            CurrentY = NextY;
-            CurrentWidth = NextWidth;
-            CurrentHeight = NextHeight;
+            X.ApplyNext();
+            Y.ApplyNext();
+            Width.ApplyNext();
+            Height.ApplyNext();
         }
 
         /// <summary>
-        /// Sets the next position (NextX, NextY) to a new location.
+        /// Sets the next position.
         /// </summary>
-        /// <param name="x">Target X position.</param>
-        /// <param name="y">Target Y position.</param>
         public void Move(float x, float y)
         {
-            NextX = x;
-            NextY = y;
+            X.Next = x;
+            Y.Next = y;
         }
 
         /// <summary>
-        /// Sets the next size (NextWidth, NextHeight) to a new width and height.
+        /// Sets the next size.
         /// </summary>
-        /// <param name="width">Target width.</param>
-        /// <param name="height">Target height.</param>
         public void Resize(float width, float height)
         {
-            NextWidth = width;
-            NextHeight = height;
+            Width.Next = width;
+            Height.Next = height;
         }
     }
 }

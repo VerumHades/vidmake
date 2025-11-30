@@ -17,8 +17,8 @@ namespace AbstractRendering
         /// </summary>
         public Rectangle()
         {
-            NextWidth = 10;
-            NextHeight = 10;
+            Width.Next = 10;
+            Height.Next = 10;
             ApplyNext();
         }
 
@@ -30,8 +30,8 @@ namespace AbstractRendering
         /// <param name="backgroundColor">Optional background color (defaults to green).</param>
         public Rectangle(int width, int height, Pixel? backgroundColor = null)
         {
-            NextWidth = width;
-            NextHeight = height;
+            Width.Next = width;
+            Height.Next = height;
             ApplyNext();
 
             if (backgroundColor.HasValue)
