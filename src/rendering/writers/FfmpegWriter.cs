@@ -31,6 +31,7 @@ namespace AbstractRendering
 
         /// <summary>Size of one frame in bytes.</summary>
         public int FrameSizeInBytes { get; private set; }
+        const int maxAttempts = 5;
 
         /// <summary>
         /// Constructor. Starts an FFmpeg process and prepares it to receive raw frames.
@@ -48,6 +49,7 @@ namespace AbstractRendering
                 throw new FileNotFoundException("FFmpeg executable not found", ffmpegPath);
 
             string? encoder = GetHardwareEncoder();
+            Console.WriteLine("Using encoder: " + encoder);
             ffmpegProcess = new Process
             {
                 StartInfo = new ProcessStartInfo
@@ -81,7 +83,7 @@ namespace AbstractRendering
                 string? line;
                 while ((line = await ffmpegProcess.StandardError.ReadLineAsync()) != null)
                 {
-                    Console.WriteLine(line);
+                    Console.WriteLine("[ffmpeg] " + line);
                 }
             });
 
@@ -188,7 +190,16 @@ namespace AbstractRendering
             if (bytes.Length < size)
                 throw new InvalidDataException("Invalid amount of frame data.");
 
-            ffmpegInputStream.Write(bytes, 0, size);
+            for(int attempt = 0; attempt < maxAttempts;attempt++){
+                try {
+                    ffmpegInputStream.Write(bytes, 0, size);
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+            }
         }
 
         /// <summary>

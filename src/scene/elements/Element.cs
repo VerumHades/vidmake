@@ -13,6 +13,7 @@ namespace AbstractRendering
         /// </summary>
         public IInterpolator AnimationInterpolator { get; } = new LinearInterpolator();
 
+        public ObservableProperty<int> zIndex {get;} = new(0);
         /// <summary>
         /// Renders the element into a DrawableArea for a specific animation frame.
         /// This method must be implemented by derived classes to define

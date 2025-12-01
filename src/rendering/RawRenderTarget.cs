@@ -31,12 +31,13 @@ namespace AbstractRendering
         }
 
         /// <summary>
-        /// Adds frames for all elements over a specified duration in seconds.
-        /// Generates frames in parallel chunks for efficiency and streams them directly to the video writer.
+        /// Generates frames for a collection of elements over a specified duration.
+        /// Each element may have "Current" and "Next" states, which should be
+        /// interpolated or applied over the given time span.
         /// </summary>
-        /// <param name="elements">The scene elements to render.</param>
-        /// <param name="seconds">Duration to render in seconds.</param>
-        public override void AddElementFrames(IReadOnlyList<Element> elements, int seconds)
+        /// <param name="createElementEnumerator">Creates an enumerator that should be saved to use in multiple threads.</param>
+        /// <param name="seconds">The duration (in seconds) to advance the scene.</param>
+        public override void AddElementFrames(Func<IEnumerable<Element>> createElementEnumerator, int seconds)
         {
             int frameCount = seconds * videoWriter.FPS; // total number of frames to render
             int totalChunks = (int)Math.Ceiling((double)frameCount / maxParallelRenderFrameCount); // number of chunks
@@ -51,16 +52,18 @@ namespace AbstractRendering
                 int endFrame = Math.Min(startFrame + maxParallelRenderFrameCount, frameCount);
                 int currentChunkSize = endFrame - startFrame;
 
-                Parallel.For(0, currentChunkSize, i =>
-                {
+                //Parallel.For(0, currentChunkSize, i =>
+                //{
+                for(int i = 0;i < currentChunkSize; i++){
                     float animationPercentage = (startFrame + i) / (float)frameCount;
 
                     RenderFrame(
                         framesBuffer.AsSpan(i * videoWriter.FrameSizeInBytes, videoWriter.FrameSizeInBytes),
-                        elements,
+                        createElementEnumerator(),
                         animationPercentage
                     );
-                });
+                }
+                //});
 
                 videoWriter.Write(framesBuffer, currentChunkSize);
                 RenderStateReporter?.FrameChunkRendered(chunkIndex, currentChunkSize);
@@ -76,7 +79,7 @@ namespace AbstractRendering
         /// <param name="target">Span of bytes representing the frame buffer for one frame.</param>
         /// <param name="elements">The elements to render.</param>
         /// <param name="animationPercentage">Progress of the animation [0..1].</param>
-        private void RenderFrame(Span<byte> target, IReadOnlyList<Element> elements, float animationPercentage)
+        private void RenderFrame(Span<byte> target, IEnumerable<Element> elements, float animationPercentage)
         {
             foreach (var element in elements)
             {

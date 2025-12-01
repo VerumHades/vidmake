@@ -9,7 +9,6 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="5.0.0" />
-    <PackageReference Include="SkipList" Version="1.0.0" />
     <PackageReference Include="System.CommandLine" Version="2.0.0-beta4" />
   </ItemGroup>
 

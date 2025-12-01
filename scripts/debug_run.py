@@ -43,6 +43,7 @@ ffmpeg_path = find_ffmpeg_executable(ffmpeg_dir)
 
 def run_debug():
     """Runs the .NET project in Debug mode."""
+    print("Running...")
     result = subprocess.run(
         [
             "dotnet",

@@ -12,8 +12,8 @@ namespace AbstractRendering
         /// Each element may have "Current" and "Next" states, which should be
         /// interpolated or applied over the given time span.
         /// </summary>
-        /// <param name="elements">The elements to render.</param>
+        /// <param name="createElementEnumerator">Creates an enumerator that should be saved to use in multiple threads.</param>
         /// <param name="seconds">The duration (in seconds) to advance the scene.</param>
-        public abstract void AddElementFrames(IReadOnlyList<Element> elements, int seconds);
+        public abstract void AddElementFrames(Func<IEnumerable<Element>> createElementEnumerator, int seconds);
     }
 }

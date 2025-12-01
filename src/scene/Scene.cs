@@ -1,3 +1,5 @@
+using System;
+
 namespace AbstractRendering
 {
     /// <summary>
@@ -6,7 +8,7 @@ namespace AbstractRendering
     /// </summary>
     public class Scene
     {
-        private readonly List<Element> elements = new List<Element>();
+        private readonly SortedDictionary<int, HashSet<Element>> elements = new();
         private readonly RenderTarget renderTarget;
 
         /// <summary>
@@ -18,6 +20,16 @@ namespace AbstractRendering
             this.renderTarget = renderTarget;
         }
 
+        private HashSet<Element> GetOrCreateLayer(int number)
+        {
+            if (!elements.TryGetValue(number, out var layer))
+            {
+                layer = new HashSet<Element>();
+                elements[number] = layer;   
+            }
+
+            return layer;
+        }
         /// <summary>
         /// Adds an already-created element instance to the scene.
         /// </summary>
@@ -25,9 +37,30 @@ namespace AbstractRendering
         /// <param name="element">The element instance to add.</param>
         /// <returns>The element that was added, for convenience.</returns>
         public T Add<T>(T element) where T: Element
-        {
-            elements.Add(element);
+        {   
+            var layer = GetOrCreateLayer(element.zIndex.Value);
+            layer.Add(element);
+
+
+            element.zIndex.AddChangedListener((nextZIndex) => {
+                if(nextZIndex == element.zIndex.Value) return;
+
+                elements[element.zIndex.Value].Remove(element);
+                GetOrCreateLayer(nextZIndex).Add(element);
+            });
+
             return element;
+        }
+
+        private IEnumerable<Element> GetElementEnumerator()
+        {
+            foreach(var (index, batch) in elements)
+            {
+                foreach(var element in batch)
+                {
+                    yield return element;
+                }
+            }
         }
 
         /// <summary>
@@ -39,9 +72,9 @@ namespace AbstractRendering
         /// <param name="seconds">The duration of this animation frame, in seconds.</param>
         public void Go(int seconds)
         {
-            renderTarget.AddElementFrames(elements, seconds);
+            renderTarget.AddElementFrames(() => GetElementEnumerator(), seconds);
 
-            foreach (var element in elements)
+            foreach (var element in GetElementEnumerator())
             {
                 element.ApplyNext();
             }

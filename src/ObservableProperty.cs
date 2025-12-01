@@ -2,7 +2,12 @@ namespace AbstractRendering
 {
     public class ObservableProperty<T>(T value)
     {
-        public Action<T>? Changed {get;set;}
+        public List<Action<T>> Changed {get;} = new();
+    
+        public void AddChangedListener(Action<T> listener)
+        {
+            Changed.Add(listener);
+        }
 
         private T value = value;
         public T Value
@@ -13,7 +18,9 @@ namespace AbstractRendering
             }
             set
             {
-                Changed?.Invoke(value);
+                foreach(var listener in Changed)
+                    listener?.Invoke(value);
+
                 this.value = value;
             }
         }

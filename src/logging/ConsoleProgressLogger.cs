@@ -1,5 +1,4 @@
 using System;
-using System.Threading;
 
 namespace AbstractRendering
 {
@@ -8,9 +7,6 @@ namespace AbstractRendering
         int totalFrames;
         int renderedFrames;
 
-        // Cursor positions for the two bars
-        int globalBarLine;
-        int chunkBarLine;
         public void RenderBegin(IVideoWriter writer)
         {
             Console.WriteLine("Rendering Started");
@@ -18,7 +14,7 @@ namespace AbstractRendering
 
         public void RenderStop()
         {
-            Console.WriteLine("\nRendering Stopped");
+            Console.WriteLine("Rendering Stopped");
         }
 
         public void RenderSequenceBegin(int framesTotal)
@@ -26,73 +22,37 @@ namespace AbstractRendering
             totalFrames = framesTotal;
             renderedFrames = 0;
 
-            Console.WriteLine($"Total Frames: {framesTotal}");
-
-            Console.WriteLine("Global Progress:");
-            globalBarLine = Console.CursorTop;
-            Console.WriteLine(); // actual bar line
-
-            Console.WriteLine("Current Chunk Progress:");
-            chunkBarLine = Console.CursorTop;
-            Console.WriteLine(); // bar line
-
-            DrawGlobalBar(0);
-            DrawChunkBar(0, 1);
+            Console.WriteLine($"Render sequence begins. Total frames: {framesTotal}");
         }
 
         public void RenderSequenceEnd()
         {
-            DrawGlobalBar(totalFrames);
-            Console.WriteLine("\nSequence Completed\n");
+            Console.WriteLine("Render sequence completed.");
         }
 
         public void FrameChunkRendered(int chunkIndex, int framesRenderedCount)
         {
             renderedFrames += framesRenderedCount;
-
-            // Draw full chunk bar for chunk completion
-            DrawChunkBar(1, 1);
-            DrawGlobalBar(renderedFrames);
+            Console.WriteLine($"Chunk {chunkIndex} rendered ({framesRenderedCount} frames). Total rendered: {renderedFrames}/{totalFrames}");
         }
 
-        /*public void FrameRendered(int chunkRelativeFrameIndex, int globalFrameIndex)
-        {
-            
-        }*/
-
-        // ---------------- Drawing ----------------
+        // ---------------- Drawing (now simplified to nothing) ----------------
 
         void DrawGlobalBar(int value)
         {
-            value = Math.Clamp(value, 0, totalFrames);
-            double pct = totalFrames == 0 ? 0 : (double)value / totalFrames;
-
-            string bar = BuildBar(pct, 40);
-            int oldTop = Console.CursorTop;
-
-            Console.SetCursorPosition(0, globalBarLine);
-            Console.Write($"{bar} {pct*100:0.0}%");
-
-            Console.SetCursorPosition(0, oldTop);
+            // simplified: just log the progress
+            Console.WriteLine($"Global progress: {value}/{totalFrames}");
         }
 
         void DrawChunkBar(int chunkIndex, int chunkSize)
         {
-            double pct = chunkSize <= 0 ? 0 : Math.Clamp((double)chunkIndex / chunkSize, 0, 1);
-
-            string bar = BuildBar(pct, 40);
-            int oldTop = Console.CursorTop;
-
-            Console.SetCursorPosition(0, chunkBarLine);
-            Console.Write($"{bar} {(pct*100):0.0}%");
-
-            Console.SetCursorPosition(0, oldTop);
+            // simplified: just log the chunk update
+            Console.WriteLine($"Chunk progress: {chunkIndex}/{chunkSize}");
         }
 
         static string BuildBar(double pct, int width)
         {
-            int filled = (int)(pct * width);
-            return "[" + new string('#', filled) + new string('-', width - filled) + "]";
+            return ""; // unused now
         }
     }
 }
