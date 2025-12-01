@@ -13,6 +13,6 @@ namespace AbstractRendering
         /// <param name="b">The ending value (ratio = 1).</param>
         /// <param name="ratio">Progress of the interpolation, usually between 0 and 1.</param>
         /// <returns>The interpolated value.</returns>
-        float Interpolate(float a, float b, float ratio);
+        double Interpolate(double a, double b, double ratio);
     }
 }

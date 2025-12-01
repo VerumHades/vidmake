@@ -54,8 +54,6 @@ def run_debug():
             "--ffmpeg-path", str(ffmpeg_path),
             "--output-file", str(Path("output") / "video.mp4")
         ],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
         text=True
     )
 

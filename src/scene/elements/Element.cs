@@ -11,9 +11,15 @@ namespace AbstractRendering
         /// between Current and Next values for smooth animations.
         /// Default is linear interpolation.
         /// </summary>
-        public IInterpolator AnimationInterpolator { get; } = new LinearInterpolator();
+        public IInterpolator AnimationInterpolator { get; } = LinearInterpolator.Instance;
 
         public ObservableProperty<int> zIndex {get;} = new(0);
+
+        public virtual void ApplyAnimationState()
+        {
+            ApplyNext();
+        }
+
         /// <summary>
         /// Renders the element into a DrawableArea for a specific animation frame.
         /// This method must be implemented by derived classes to define

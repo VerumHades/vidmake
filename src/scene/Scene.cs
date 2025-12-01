@@ -76,7 +76,7 @@ namespace AbstractRendering
 
             foreach (var element in GetElementEnumerator())
             {
-                element.ApplyNext();
+                element.ApplyAnimationState();
             }
         }
     }

@@ -44,7 +44,7 @@ namespace AbstractRendering
         /// <summary>
         /// Commits all next-state values to current-state values.
         /// </summary>
-        public void ApplyNext()
+        public virtual void ApplyNext()
         {
             X.ApplyNext();
             Y.ApplyNext();

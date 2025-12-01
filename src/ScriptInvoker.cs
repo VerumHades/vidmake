@@ -38,6 +38,7 @@ namespace AbstractRendering
                 .WithReferences(typeof(TApi).Assembly)
                 .WithReferences(typeof(Rectangle).Assembly)
                 .WithReferences(typeof(Pixel).Assembly)
+                .WithReferences(typeof(Plot2D).Assembly)
                 .WithReferences(typeof(TApi).Assembly);
 
             try

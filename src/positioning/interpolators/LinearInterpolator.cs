@@ -1,10 +1,23 @@
 namespace AbstractRendering
 {
     /// <summary>
-    /// Implements a simple linear interpolation between two float values.
+    /// Implements a simple linear interpolation between two double values.
     /// </summary>
     public class LinearInterpolator : IInterpolator
     {
+        private readonly static LinearInterpolator instance = new();
+        public static LinearInterpolator Instance
+        {
+            get
+            {
+                return instance;
+            }
+        }
+
+        private LinearInterpolator()
+        {
+            
+        }
         /// <summary>
         /// Interpolates between two values a and b based on the given ratio.
         /// The ratio is clamped between 0 and 1.
@@ -13,7 +26,7 @@ namespace AbstractRendering
         /// <param name="b">The end value (corresponds to ratio = 1).</param>
         /// <param name="ratio">The progress ratio between 0 and 1.</param>
         /// <returns>The interpolated value.</returns>
-        public float Interpolate(float a, float b, float ratio)
+        public double Interpolate(double a, double b, double ratio)
         {
             // Clamp ratio to [0,1] to prevent overshoot
             if (ratio < 0f) ratio = 0f;
