@@ -1,4 +1,9 @@
-namespace AbstractRendering
+using Vidmake.src;
+using Vidmake.src.positioning;
+using Vidmake.src.positioning.interpolators;
+using Vidmake.src.rendering;
+
+namespace Vidmake.src.scene.elements
 {
     /// <summary>
     /// Base class for all renderable objects in a Scene.
@@ -13,7 +18,7 @@ namespace AbstractRendering
         /// </summary>
         public IInterpolator AnimationInterpolator { get; } = LinearInterpolator.Instance;
 
-        public ObservableProperty<int> zIndex {get;} = new(0);
+        public ObservableProperty<int> zIndex { get; } = new(0);
 
         public virtual void ApplyAnimationState()
         {

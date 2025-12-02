@@ -1,4 +1,4 @@
-namespace AbstractRendering
+namespace Vidmake.src.positioning
 {
     /// <summary>
     /// Represents the actual integer-based position and size of an element in a frame.

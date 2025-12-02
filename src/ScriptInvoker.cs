@@ -1,9 +1,8 @@
-using System;
-using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.Scripting;
+using Vidmake.src.scene.elements;
 
-namespace AbstractRendering
+namespace Vidmake.src
 {
     /// <summary>
     /// Handles execution of external C# scripts with access to a provided API.
@@ -34,7 +33,7 @@ namespace AbstractRendering
                 throw new ArgumentException("Script code cannot be empty.", nameof(scriptCode));
 
             var options = ScriptOptions.Default
-                .WithImports("System", "System.Math", "AbstractRendering")
+                .WithImports("System", "System.Math", "Vidmake.src", "Vidmake.src.scene", "Vidmake.src.scene.elements", "Vidmake.src.positioning")
                 .WithReferences(typeof(TApi).Assembly)
                 .WithReferences(typeof(Rectangle).Assembly)
                 .WithReferences(typeof(Pixel).Assembly)

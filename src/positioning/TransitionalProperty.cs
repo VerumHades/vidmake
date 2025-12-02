@@ -1,4 +1,4 @@
-namespace AbstractRendering
+namespace Vidmake.src.positioning
 {
     public class TransitionalProperty<T>(T current)
     {

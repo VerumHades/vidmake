@@ -1,4 +1,6 @@
-namespace AbstractRendering
+using Vidmake.src.rendering;
+
+namespace Vidmake.src.scene.elements
 {
     /// <summary>
     /// A simple rectangle element that can be added to a Scene.

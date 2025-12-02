@@ -1,10 +1,11 @@
-using System;
+
 using System.CommandLine;
-using System.CommandLine.Invocation;
-using System.IO;
 using System.Text.Json;
-using AbstractRendering;
-using System.Threading.Tasks;
+using Vidmake.src;
+using Vidmake.src.logging;
+using Vidmake.src.rendering;
+using Vidmake.src.rendering.writers;
+using Vidmake.src.scene;
 
 class Program
 {

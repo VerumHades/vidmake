@@ -1,4 +1,4 @@
-namespace AbstractRendering
+namespace Vidmake.src.positioning.interpolators
 {
     /// <summary>
     /// Implements a simple linear interpolation between two double values.
@@ -16,7 +16,7 @@ namespace AbstractRendering
 
         private LinearInterpolator()
         {
-            
+
         }
         /// <summary>
         /// Interpolates between two values a and b based on the given ratio.

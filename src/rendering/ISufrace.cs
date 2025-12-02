@@ -1,4 +1,4 @@
-namespace AbstractRendering
+namespace Vidmake.src.rendering
 {
     /// <summary>
     /// Represents a drawable surface that can render itself into a DrawableArea.

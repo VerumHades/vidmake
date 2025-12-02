@@ -1,4 +1,7 @@
-namespace AbstractRendering
+using Vidmake.src.rendering.writers;
+using Vidmake.src.scene.elements;
+
+namespace Vidmake.src.rendering
 {
     /// <summary>
     /// A RenderTarget implementation that generates raw frames in memory
@@ -43,7 +46,7 @@ namespace AbstractRendering
             int totalChunks = (int)Math.Ceiling((double)frameCount / maxParallelRenderFrameCount); // number of chunks
 
             RenderStateReporter?.RenderSequenceBegin(frameCount);
-            
+
             for (int chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++)
             {
                 Array.Clear(framesBuffer, 0, framesBuffer.Length);
@@ -54,7 +57,8 @@ namespace AbstractRendering
 
                 //Parallel.For(0, currentChunkSize, i =>
                 //{
-                for(int i = 0;i < currentChunkSize; i++){
+                for (int i = 0; i < currentChunkSize; i++)
+                {
                     float animationPercentage = (startFrame + i) / (float)frameCount;
 
                     RenderFrame(

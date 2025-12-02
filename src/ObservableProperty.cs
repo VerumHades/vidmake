@@ -1,9 +1,9 @@
-namespace AbstractRendering
+namespace Vidmake.src
 {
     public class ObservableProperty<T>(T value)
     {
-        public List<Action<T>> Changed {get;} = new();
-    
+        public List<Action<T>> Changed { get; } = new();
+
         public void AddChangedListener(Action<T> listener)
         {
             Changed.Add(listener);
@@ -18,7 +18,7 @@ namespace AbstractRendering
             }
             set
             {
-                foreach(var listener in Changed)
+                foreach (var listener in Changed)
                     listener?.Invoke(value);
 
                 this.value = value;

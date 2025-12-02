@@ -1,6 +1,7 @@
-using System;
+using Vidmake.src.rendering;
+using Vidmake.src.rendering.writers;
 
-namespace AbstractRendering
+namespace Vidmake.src.logging
 {
     public class ConsoleProgressReporter : IRenderStateReporter
     {

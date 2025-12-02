@@ -1,4 +1,4 @@
-namespace AbstractRendering
+namespace Vidmake.src.rendering.writers
 {
     /// <summary>
     /// Specifies the pixel format for video frames.

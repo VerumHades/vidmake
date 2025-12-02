@@ -1,4 +1,6 @@
-namespace AbstractRendering
+using Vidmake.src.rendering.writers;
+
+namespace Vidmake.src.rendering
 {
     public interface IRenderStateReporter
     {

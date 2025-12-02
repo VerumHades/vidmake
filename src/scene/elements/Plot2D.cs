@@ -1,6 +1,8 @@
-using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Vidmake.src.positioning;
+using Vidmake.src.positioning.interpolators;
+using Vidmake.src.rendering;
 
-namespace AbstractRendering
+namespace Vidmake.src.scene.elements
 {
     /// <summary>
     /// A simple rectangle element that can be added to a Scene.
@@ -14,12 +16,12 @@ namespace AbstractRendering
         /// </summary>
         public Pixel StrokeColor { get; set; } = Pixel.Blue;
 
-        public TransitionalProperty<Func<double, double>> SampledFunction = new((x) => x);        
-        public TransitionalProperty<Interval<double>> SampleInterval {get;} = new TransitionalProperty<Interval<double>>(new Interval<double>(-100,100));
-        public TransitionalProperty<Interval<double>> ValueInterval {get;} = new TransitionalProperty<Interval<double>>(new Interval<double>(-100,100));
-        public TransitionalProperty<double> SampleStep {get;} = new TransitionalProperty<double>(0.01);
+        public TransitionalProperty<Func<double, double>> SampledFunction = new((x) => x);
+        public TransitionalProperty<Interval<double>> SampleInterval { get; } = new TransitionalProperty<Interval<double>>(new Interval<double>(-100, 100));
+        public TransitionalProperty<Interval<double>> ValueInterval { get; } = new TransitionalProperty<Interval<double>>(new Interval<double>(-100, 100));
+        public TransitionalProperty<double> SampleStep { get; } = new TransitionalProperty<double>(0.01);
 
-        public IInterpolator ValueIntervalInterpolator {get;} = LinearInterpolator.Instance;
+        public IInterpolator ValueIntervalInterpolator { get; } = LinearInterpolator.Instance;
         public IInterpolator SampleCountInterpolator { get; } = LinearInterpolator.Instance;
         public IInterpolator SampleInterpolator { get; } = LinearInterpolator.Instance;
         /// <summary>
@@ -43,7 +45,7 @@ namespace AbstractRendering
         }
 
         private double GetIntervalLength(Interval<double> interval)
-        {   
+        {
             return interval.End - interval.Start;
         }
         private int GetSampleNumberInRange(Interval<double> interval, double step)
@@ -66,7 +68,7 @@ namespace AbstractRendering
             double currentSampleStep = GetIntervalLength(SampleInterval.Current) / currentSampleCount;
             double futureSampleStep = GetIntervalLength(SampleInterval.Next) / futureSampleCount;
 
-            for(int i = 0;i < sampleCount; i++)
+            for (int i = 0; i < sampleCount; i++)
             {
                 double currentSample = SampledFunction.Current(SampleInterval.Current.Start + i * currentSampleStep);
                 double futureSample = SampledFunction.Next(SampleInterval.Next.Start + i * futureSampleStep);
@@ -78,7 +80,8 @@ namespace AbstractRendering
 
                 //Console.WriteLine(normalizedX + " " + normalizedY);
 
-                for(var j = -5;j < 5;j++){
+                for (var j = -5; j < 5; j++)
+                {
                     area.SetPixel((int)(normalizedX * area.Width), (int)(normalizedY * area.Height) + j, StrokeColor);
                 }
             }

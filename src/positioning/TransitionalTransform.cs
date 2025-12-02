@@ -1,4 +1,6 @@
-namespace AbstractRendering
+using Vidmake.src.positioning.interpolators;
+
+namespace Vidmake.src.positioning
 {
     /// <summary>
     /// Represents a transform whose state transitions smoothly between frames.

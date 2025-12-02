@@ -1,4 +1,4 @@
-namespace AbstractRendering
+namespace Vidmake.src.positioning.interpolators
 {
     /// <summary>
     /// Defines a contract for interpolating between two numeric values.

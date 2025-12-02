@@ -1,5 +1,3 @@
-using System;
-
 /// <summary>
 /// Represents a single RGBA pixel with 8-bit channels.
 /// Immutable once created (readonly struct).
@@ -37,7 +35,7 @@ public readonly struct Pixel
     // Predefined common colors for convenience.
     public static readonly Pixel Black = new(0, 0, 0);
     public static readonly Pixel White = new(255, 255, 255);
-    public static readonly Pixel Red   = new(255, 0, 0);
+    public static readonly Pixel Red = new(255, 0, 0);
     public static readonly Pixel Green = new(0, 255, 0);
-    public static readonly Pixel Blue  = new(0, 0, 255);
+    public static readonly Pixel Blue = new(0, 0, 255);
 }

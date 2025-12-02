@@ -1,10 +1,6 @@
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Threading.Tasks;
 
-namespace AbstractRendering
+namespace Vidmake.src.rendering.writers
 {
     /// <summary>
     /// Implements IVideoWriter by streaming raw frames to an FFmpeg process.
@@ -190,8 +186,10 @@ namespace AbstractRendering
             if (bytes.Length < size)
                 throw new InvalidDataException("Invalid amount of frame data.");
 
-            for(int attempt = 0; attempt < maxAttempts;attempt++){
-                try {
+            for (int attempt = 0; attempt < maxAttempts; attempt++)
+            {
+                try
+                {
                     ffmpegInputStream.Write(bytes, 0, size);
                     break;
                 }
