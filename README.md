@@ -18,6 +18,25 @@ When you are ready check out what you can do in the video [scripts](#video-scrip
 The quickest way to get setup. Includes the standalone binary, ffmpeg and a sample script with a config.
 
 1. Find `sample` in the latest release, download and unpack it.
+It should look like something like this:
+
+```
+unzipped_sample/
+│
+├── bin/
+│   ├── Vidmake.exe
+│   ├── Vidmake.dll
+│   ├── Vidmake.pdb
+│   ├── dependencies/
+│   │   ├── SomeLibrary.dll
+│   │   ├── AnotherLibrary.dll
+│   │   └── ...
+│   └── ...
+│
+├── config.json
+└── animation.csx
+```
+
 2. Navigate to the root folder (one with `config.json` in it), open a console;
 
 You can render the sample video using:
@@ -105,52 +124,7 @@ Lets go trough it step by step:
 4. Only one rectangles next position is set (the other one will remain static during the next animation sequence)
 5. The `Go` command is called again, the one rectangle that is not in its designated position moves to it in the 1 second time frame.
 
-### Elements
-
-#### TransitionalTransform
-
-`TransitionalTransform` is an abstract base class for elements that have a **position and size** with smooth transitions between frames.  
-It stores both the **current state** (read-only) and the **next target state** (modifiable), allowing interpolation between them for animations.
-
-##### Usage
-
-- You can modify the `NextX`, `NextY`, `NextWidth`, `NextHeight` to set the target state.
-
-##### Attributes
-
-| Property        | Type   | Description |
-|-----------------|--------|-------------|
-| `CurrentX`      | float  | Current X position (read-only). |
-| `CurrentY`      | float  | Current Y position (read-only). |
-| `CurrentWidth`  | float  | Current width (read-only). |
-| `CurrentHeight` | float  | Current height (read-only). |
-| `NextX`         | float  | Target X position for next frame (modifiable). |
-| `NextY`         | float  | Target Y position for next frame (modifiable). |
-| `NextWidth`     | float  | Target width for next frame (modifiable). |
-| `NextHeight`    | float  | Target height for next frame (modifiable). |
-
-##### Key Methods
-
-| Method | Description |
-|--------|-------------|
-| `Move(float x, float y)` | Sets `NextX` and `NextY` for the element’s target position. |
-| `Resize(float width, float height)` | Sets `NextWidth` and `NextHeight` for the element’s target size. |
-
-#### Built-in elements
-
-##### Rectangle
-
-The `Rectangle` class is a simple drawable rectangle with a background color.
-Example:
-
-```csharp
-// Default 10x10 green rectangle
-var rect = new Rectangle();
-
-// Custom size (width x height) with optional background color
-var rect = new Rectangle(100, 50); // green by default
-var rectRed = new Rectangle(100, 50, Pixel.Red);
-```
+You can go find out more about elements here: [See the elements guide](doc/ELEMENTS.md)
 
 ## Third-Party Software
 

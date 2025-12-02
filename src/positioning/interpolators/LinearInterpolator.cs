@@ -5,14 +5,7 @@ namespace Vidmake.src.positioning.interpolators
     /// </summary>
     public class LinearInterpolator : IInterpolator
     {
-        private readonly static LinearInterpolator instance = new();
-        public static LinearInterpolator Instance
-        {
-            get
-            {
-                return instance;
-            }
-        }
+        public static LinearInterpolator Instance { get; } = new();
 
         private LinearInterpolator()
         {

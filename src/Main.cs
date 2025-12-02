@@ -90,6 +90,8 @@ class Program
                 var invoker = new ScriptInvoker<Scene>(scene);
                 invoker.Execute(File.ReadAllText(config.ScriptFile));
 
+                videoWriter.Dispose();
+
                 Console.WriteLine("Video rendering complete!");
             },
             configOption, widthOption, heightOption, fpsOption, outputOption, ffmpegOption, scriptOption

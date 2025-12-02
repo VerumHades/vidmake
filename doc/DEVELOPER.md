@@ -1,44 +1,33 @@
 # Architecture
 
-## Scripting API
+1. [Rendering PIPELINE](#rendering-pipeline)
+    1. [Scene](#scene)
+    2. [RenderTarget](#rendertarget)
+    3. [DrawableArea](#drawablearea)
+    4. [IVideoWriter](#ivideowriter)
+        1. [PixelFormat Enum](#pixelformat-enum)
+        2. [IVideoWriter Interface](#ivideowriter-interface)
+        3. [The ffmpeg implementation](#the-ffmpeg-implementation)
+2. [Publishing](#publishing)
 
 ## Rendering PIPELINE
 
 ![img](images/pipeline/overview.png)
 
-### Element
-
-| Member / Method | Type | Description |
-|-----------------|------|-------------|
-| `AnimationInterpolator` | `IInterpolator` | Gets the interpolator used to calculate intermediate states between `Current` and `Next` values for smooth animations. Defaults to `LinearInterpolator`. |
-| `Render(ref DrawableArea area, float animationPercentage)` | `abstract void` | Abstract method that renders the element into a `DrawableArea` for a specific animation frame. Derived classes must implement this to define the element's drawing behavior. The `animationPercentage` parameter represents progress of the animation (0.0 = start, 1.0 = end). |
-
-> `Element` is an abstract base class for all renderable objects in a `Scene`.  
-> Inherits from `TransitionalTransform` (position/size animation) and implements `ISurface`.  
-> Concrete elements must implement `Render` to produce visual output in a `DrawableArea`.  
-> The `AnimationInterpolator` can be replaced with custom interpolators to achieve non-linear animation effects.
-
-Everything actor in a scene is an element.
-![img](images/pipeline/element.png)
-Elements can and likely will have a set next positions:
-![img](images/pipeline/element_next_position.png)
-
 ### Scene
 
 | Member / Method | Type | Description |
 |-----------------|------|-------------|
-| `elements` | `List<Element>` | Private list storing all elements in the scene. |
-| `renderTarget` | `RenderTarget` | Private reference to the target used for rendering frames. |
 | `Scene(RenderTarget renderTarget)` | Constructor | Initializes a new Scene with the specified `RenderTarget`. |
-| `Add<T>(T element)` | `T` | Adds an existing element instance to the scene. Returns the added element. `<T>` must be of type `Element`. |
+| `Add<T>(T element)` | `T` | Adds an existing element instance to the scene. Returns the added element. `<T>` must be of type `Element`. Automatically tracks changes to `zIndex` and moves elements between layers accordingly. |
 | `Go(int seconds)` | `void` | Advances the scene by generating frames for all elements over the given duration (in seconds). Applies each element's next state after rendering. |
 
-If we add an `Element` to a scene `Scene`, it is now registered its animations will be taken into account.
+If we add an `Element` to a scene `Scene`, it is now registered its animations will be taken into account.  
 It is important to realize that scenes **do not have a size**, they are simple collections of elements.
 ![img](images/pipeline/scenes_dont_have_a_size.png)
 
-> The `elements` list is internal to the scene; elements should be added via `Add<T>`.
-> `Go` should be called for each time step or animation frame to progress the scene.
+Internally elements are stored in an `OrderedDictionary` that has sets of elements for each given layer.
+![img](images/pipeline/element_layer_structure.png)
 
 ### RenderTarget
 
@@ -48,10 +37,9 @@ It is important to realize that scenes **do not have a size**, they are simple c
 | `AddElementFrames(IReadOnlyList<Element> elements, int seconds)` | `abstract void` | Abstract method that generates frames for the provided elements over a given duration in seconds. Each element may have "Current" and "Next" states that should be interpolated or applied over the time span. |
 
 > `RenderTarget` is an abstract base class. Concrete implementations should define how frames are actually produced.  
-> The `RenderStateReporter` can be used to track rendering progress for sequences (all frames of one animation) and chunks.
+> `RenderStateReporter` can be used to track rendering progress for sequences (all frames of one animation) and chunks.
 
-
-And whene a `Scene.Go` function is called, the number of frames to render is calculated:
+And when a `Scene.Go` function is called, the number of frames to render is calculated:
 ![img](images/pipeline/frame_count_calculation.png)
 When frames are rendered the elements move using their interpolation functions:
 ![img](images/pipeline/element_position_interpolation.png)
@@ -75,13 +63,10 @@ The rendering sequence for an element goes like this:
 | `Fill(Pixel pixel)` | `void` | Fills the entire subarea with a single color, respecting clipping against both the subarea and full image. |
 
 > The subarea may have negative offsets, and local pixel coordinates may also be negative.  
-> All writes are clipped to the subarea and the full image to avoid buffer overflows.  
-> Supports multiple pixel formats (Grayscale = 1 byte, RGB = 3 bytes, RGBA = 4 bytes).  
-> Provides convenient methods for row, column, or full-area fills while respecting clipping.
+> All writes are clipped to the subarea and the full image.  
 
 The `DrawableArea` always accepts a whole RGBA pixel as an argument, but depending on mode it behaves like this (Only the blue components are used)
 ![img](images/pipeline/pixel_formats.png)
-
 
 ### IVideoWriter
 
@@ -113,7 +98,7 @@ The video writer defines what pixel formats are supported,
 
 #### The ffmpeg implementation
 
-There is one builtin implementation of a video writer, thats the `FfmpegWriter`,
+There is one builtin implementation of a video writer, thats the `FfmpegWriter`,  
 it uses an ffmpeg cli executable, opens it as a process and streams raw frames into it.
 
 | Member / Method | Type | Description |
@@ -137,4 +122,4 @@ it uses an ffmpeg cli executable, opens it as a process and streams raw frames i
 
 ## Publishing
 
-Use the release_builder.py script
+Use the `release_builder.py` script
