@@ -32,7 +32,7 @@ namespace Vidmake.src.rendering.writers
         /// <summary>
         /// Constructor. Starts an FFmpeg process and prepares it to receive raw frames.
         /// </summary>
-        public FfmpegVideoWriter(int width, int height, int targetFPS, PixelFormat pixelFormat, string outputFilename, string ffmpegPath)
+        public FfmpegVideoWriter(int width, int height, int targetFPS, PixelFormat pixelFormat, string outputFilename, string ffmpegPath, bool echo)
         {
             FPS = targetFPS;
             PixelFormat = pixelFormat;
@@ -79,7 +79,7 @@ namespace Vidmake.src.rendering.writers
                 string? line;
                 while ((line = await ffmpegProcess.StandardError.ReadLineAsync()) != null)
                 {
-                    Console.WriteLine("[ffmpeg] " + line);
+                    if(echo) Console.WriteLine("[ffmpeg] " + line);
                 }
             });
 

@@ -26,6 +26,9 @@ public class VideoConfig
     /// </summary>
     [JsonPropertyName("fps")]
     public int FPS { get; set; } = 30;
+    
+    [JsonPropertyName("ffmpegEcho")]
+    public bool FfmpegEcho { get; set; } = false;
 
     /// <summary>
     /// Output video file path.

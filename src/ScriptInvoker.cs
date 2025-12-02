@@ -48,14 +48,28 @@ namespace Vidmake.src
             }
             catch (CompilationErrorException e)
             {
-                Console.WriteLine("Script compilation error:");
+                // Red text for compilation errors
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine(new string('=', 60));
+                Console.WriteLine(" SCRIPT COMPILATION ERROR ");
+                Console.WriteLine(new string('=', 60));
+
                 foreach (var diag in e.Diagnostics)
-                    Console.WriteLine(diag.ToString());
+                    Console.WriteLine($"  - {diag}");
+
+                Console.ResetColor();
                 throw;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Script execution error: {ex.Message}");
+                // Yellow text for runtime errors
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine(new string('=', 60));
+                Console.WriteLine(" SCRIPT EXECUTION ERROR ");
+                Console.WriteLine(new string('=', 60));
+
+                Console.WriteLine($"  {ex.Message}");
+                Console.ResetColor();
                 throw;
             }
         }

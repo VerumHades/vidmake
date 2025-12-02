@@ -63,13 +63,14 @@ You can configure the rendering pipeline using **command-line arguments** or a *
 | `--fps`         | Frames per second |
 | `--output-file` | Output video file path |
 | `--ffmpeg-path` | Path to the FFmpeg executable |
+| `--ffmpeg-echo` | Whether to asynchronously print ffmpeg output |
 | `--script` | Path to the C# script (`.csx`) defining the scene and elements |
 | `--config` | Path a [json](#json-config) configuration file |
 
 Example:
 
 ```bash
-Vidmake --width 1920 --height 1080 --fps 60 --output-file video.mp4 --ffmpeg-path ffmpeg.exe --script myscene.csx 
+Vidmake --width 1920 --height 1080 --fps 60 --output-file video.mp4 --ffmpeg-path ffmpeg.exe --script myscene.csx --ffmpeg-echo true
 ```
 Or simply:
 
@@ -87,6 +88,7 @@ Instead of repeating arguments, you can provide a JSON configuration file. Examp
     "fps": 60,
     "outputFile": "video.mp4",
     "ffmpegPath": "ffmpeg\\win-x86\\ffmpeg.exe",
+    "ffmpegEcho": true,
     "scriptFile": "myscene.csx"
 }
 ```
@@ -97,7 +99,8 @@ Load the configuration in your CLI program, and it will override default values 
 
 ## Video scripting
 
-In vidmake videos are written in C# scripts. See the available elements [here](#elements)
+In vidmake videos are written in C# scripts.
+You can go find out more about elements here: [See the elements guide](doc/ELEMENTS.md)
 
 ### Quickstart Example
 
@@ -124,7 +127,6 @@ Lets go trough it step by step:
 4. Only one rectangles next position is set (the other one will remain static during the next animation sequence)
 5. The `Go` command is called again, the one rectangle that is not in its designated position moves to it in the 1 second time frame.
 
-You can go find out more about elements here: [See the elements guide](doc/ELEMENTS.md)
 
 ## Third-Party Software
 

@@ -22,6 +22,7 @@ class Program
         var fpsOption = new Option<int>("--fps", () => 30, "Frames per second");
         var outputOption = new Option<string>("--output-file", "Output video file path");
         var ffmpegOption = new Option<string>("--ffmpeg-path", "Path to ffmpeg executable");
+        var ffmpegEchoOption = new Option<bool>("--ffmpeg-echo", "Whether to print ffmpeg output.");
         var scriptOption = new Option<string>("--script", "Path to C# script to execute");
 
         root.AddOption(configOption);
@@ -30,10 +31,11 @@ class Program
         root.AddOption(fpsOption);
         root.AddOption(outputOption);
         root.AddOption(ffmpegOption);
+        root.AddOption(ffmpegEchoOption);
         root.AddOption(scriptOption);
 
         root.SetHandler(
-            async (configPath, width, height, fps, outputFile, ffmpegPath, scriptPath) =>
+            async (configPath, width, height, fps, outputFile, ffmpegPath, ffmpegEcho, scriptPath) =>
             {
                 VideoConfig config = new VideoConfig();
                 if (!string.IsNullOrEmpty(configPath))
@@ -51,6 +53,8 @@ class Program
                 if (width != 1920) config.Width = width;
                 if (height != 1080) config.Height = height;
                 if (fps != 30) config.FPS = fps;
+                if (ffmpegEcho != false) config.FfmpegEcho = ffmpegEcho;
+
                 if (!string.IsNullOrEmpty(outputFile)) config.OutputFile = outputFile;
                 if (!string.IsNullOrEmpty(ffmpegPath)) config.FfmpegPath = ffmpegPath;
                 if (!string.IsNullOrEmpty(scriptPath)) config.ScriptFile = scriptPath;
@@ -81,20 +85,31 @@ class Program
                     config.FPS,
                     PixelFormat.RGB,
                     config.OutputFile,
-                    config.FfmpegPath
+                    config.FfmpegPath,
+                    config.FfmpegEcho
                 );
 
                 var target = new RawRenderTarget(videoWriter, new ConsoleProgressReporter());
 
                 var scene = new Scene(target);
-                var invoker = new ScriptInvoker<Scene>(scene);
-                invoker.Execute(File.ReadAllText(config.ScriptFile));
+                
+                try
+                {
+                    var invoker = new ScriptInvoker<Scene>(scene);
+                    invoker.Execute(File.ReadAllText(config.ScriptFile));
 
-                videoWriter.Dispose();
-
-                Console.WriteLine("Video rendering complete!");
+                    Console.WriteLine("Video rendering complete!");
+                }
+                catch (Exception)
+                {
+                    
+                }
+                finally
+                {
+                    videoWriter.Dispose();
+                }
             },
-            configOption, widthOption, heightOption, fpsOption, outputOption, ffmpegOption, scriptOption
+            configOption, widthOption, heightOption, fpsOption, outputOption, ffmpegOption, ffmpegEchoOption, scriptOption
         );
 
         return await root.InvokeAsync(args);

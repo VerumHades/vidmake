@@ -7,7 +7,6 @@ from ffmpeg_setup import download_ffmpeg
 
 TEMPLATE_RELEASE_DIR = Path("template") / "release"
 
-
 def find_ffmpeg_executable(ffmpeg_dir: Path) -> Path:
     """
     Scans a directory for an ffmpeg executable and returns the first valid one found.
@@ -44,7 +43,7 @@ ffmpeg_path = find_ffmpeg_executable(ffmpeg_dir)
 def run_debug():
     """Runs the .NET project in Debug mode."""
     print("Running...")
-    result = subprocess.run(
+    subprocess.run(
         [
             "dotnet",
             "run",
@@ -57,13 +56,6 @@ def run_debug():
         text=True
     )
 
-    if result.returncode != 0:
-        print("Build failed:")
-        print(result.stdout)
-        print(result.stderr)
-        sys.exit(1)
-    else:
-        print("Build succeeded.")
 
 if __name__ == "__main__":
     run_debug()
