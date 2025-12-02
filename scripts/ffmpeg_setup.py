@@ -123,6 +123,8 @@ def get_archive_root_dir(archive_path: Path) -> Path:
         return get_tar_root_dir(archive_path)
     else:
         raise RuntimeError(f"Unsupported archive type: {suffix}")
+
+
 # ============================================================
 #                 PUBLIC FUNCTION (IMPORT SAFE)
 # ============================================================

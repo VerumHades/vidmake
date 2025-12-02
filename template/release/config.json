@@ -3,6 +3,6 @@
   "height": 1080,
   "fps": 60,
   "outputFile": "video.mp4",
-  "ffmpegPath": "ffmpeg\\ffmpeg-win32-x64.exe",
+  "ffmpegPath": "ffmpeg\\ffmpeg.exe",
   "scriptFile": "animation.csx"
 }

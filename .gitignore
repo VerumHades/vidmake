@@ -3,3 +3,4 @@ obj/
 output/
 ffmpeg_bin/
 template/release/ffmpeg/
+template/ffmpeg/
