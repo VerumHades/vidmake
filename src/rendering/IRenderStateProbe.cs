@@ -2,7 +2,7 @@ using Vidmake.src.rendering.writers;
 
 namespace Vidmake.src.rendering
 {
-    public interface IRenderStateReporter
+    public interface IRenderStateProbe
     {
         /// <summary>
         /// Gets when the rendering begins.
@@ -35,7 +35,7 @@ namespace Vidmake.src.rendering
 
         /// <summary>
         /// USE WITH CAUTION AND PROPER SYCHRONIZATION DIRECTIVES!
-        /// 
+        ///
         /// Gets called for every frame that is rendered. Can and probably will be called asynchronously.
         /// </summary>
         /// <param name="chunkRelativeFrameIndex">If the frames are rendered in chunk, this is the relative index of the frame in said chunks otherwise 0.</param>

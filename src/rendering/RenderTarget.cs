@@ -8,7 +8,7 @@ namespace Vidmake.src.rendering
     /// </summary>
     public abstract class RenderTarget
     {
-        public IRenderStateReporter? RenderStateReporter { get; set; }
+        public IRenderStateProbe? RenderStateReporter { get; set; }
         /// <summary>
         /// Generates frames for a collection of elements over a specified duration.
         /// Each element may have "Current" and "Next" states, which should be

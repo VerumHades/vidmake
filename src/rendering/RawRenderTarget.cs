@@ -23,7 +23,7 @@ namespace Vidmake.src.rendering
         /// </summary>
         /// <param name="videoWriter">The video writer to output frames to.</param>
         /// <param name="videoWriter">The video writer to output frames to.</param>
-        public RawRenderTarget(IVideoWriter videoWriter, IRenderStateReporter? reporter = null, int maxParallelRenderFrameCount = 64)
+        public RawRenderTarget(IVideoWriter videoWriter, IRenderStateProbe? reporter = null, int maxParallelRenderFrameCount = 64)
         {
             RenderStateReporter = reporter;
             RenderStateReporter?.RenderBegin(videoWriter);

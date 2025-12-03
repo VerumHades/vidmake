@@ -9,16 +9,16 @@ namespace Vidmake.src.rendering.writers
     /// </summary>
     public class FfmpegVideoWriter: IVideoWriter, IDisposable
     {
-        private readonly string ffmpegPath;         
-        private readonly Process ffmpegProcess;     
-        private readonly Stream ffmpegInputStream;            
+        private readonly string ffmpegPath;
+        private readonly Process ffmpegProcess;
+        private readonly Stream ffmpegInputStream;
 
         public VideoFormat Format {get;}
 
         /// <summary>
         /// Constructor. Starts an FFmpeg process and prepares it to receive raw frames.
         /// </summary>
-        public FfmpegVideoWriter(VideoFormat format, string outputFilename, string ffmpegPath)
+        public FfmpegVideoWriter(VideoFormat format, string outputFilename, string ffmpegPath, bool hardwareAcceleration, IReporter? ffmpegReporter)
         {
             Format = format;
 
@@ -26,7 +26,7 @@ namespace Vidmake.src.rendering.writers
             if (!File.Exists(ffmpegPath))
                 throw new FileNotFoundException("FFmpeg executable not found", ffmpegPath);
 
-            string? encoder = GetHardwareEncoder();
+            string? encoder = hardwareAcceleration ? GetHardwareEncoder() : null;
 
             ffmpegProcess = new Process
             {
@@ -55,13 +55,12 @@ namespace Vidmake.src.rendering.writers
             ffmpegProcess.Start();
             ffmpegInputStream = ffmpegProcess.StandardInput.BaseStream;
 
-            // Read stderr asynchronously to prevent blocking
             _ = Task.Run(async () =>
             {
                 string? line;
                 while ((line = await ffmpegProcess.StandardError.ReadLineAsync()) != null)
                 {
-
+                    ffmpegReporter?.Error(line);
                 }
             });
 

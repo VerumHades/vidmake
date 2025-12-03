@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Vidmake.src.cli;
 
 /// <summary>
 /// Represents configuration settings for video rendering.
@@ -6,48 +7,39 @@ using System.Text.Json.Serialization;
 /// </summary>
 public class VideoConfig
 {
-    /// <summary>
-    /// Width of the video in pixels.
-    /// Default value is 1920.
-    /// </summary>
     [JsonPropertyName("width")]
+    [CliOption("--width", "-w", "Video width in pixels")]
     public int Width { get; set; } = 1920;
 
-    /// <summary>
-    /// Height of the video in pixels.
-    /// Default value is 1080.
-    /// </summary>
     [JsonPropertyName("height")]
+    [CliOption("--height", "-h", "Video height in pixels")]
     public int Height { get; set; } = 1080;
 
-    /// <summary>
-    /// Frames per second (FPS) of the output video.
-    /// Default value is 30.
-    /// </summary>
     [JsonPropertyName("fps")]
+    [CliOption("--fps", "-f", "Frames per second")]
     public int FPS { get; set; } = 30;
-    
+
     [JsonPropertyName("ffmpegEcho")]
+    [CliOption("--ffmpeg-echo", description: "Print ffmpeg output")]
     public bool FfmpegEcho { get; set; } = false;
 
-    /// <summary>
-    /// Output video file path.
-    /// This is required and must be specified either in JSON or via command-line.
-    /// </summary>
+    [JsonPropertyName("consoleColorEnabled")]
+    [CliOption("--console-color", description: "Whether the program should print colored output.")]
+    public bool ConsoleColorEnabled { get; set; } = true;
+
+    [JsonPropertyName("ffmpegHardwareAcceleration")]
+    [CliOption("--ffmpeg-hardware-acceleration", description: "Whether the program should look for and use a hardware encoder (may fail on some hardware).")]
+    public bool FfmpegHardwareAcceleration { get; set; } = true;
+
     [JsonPropertyName("outputFile")]
+    [CliOption("--output", "-o", "Output video file path")]
     public string OutputFile { get; set; }
 
-    /// <summary>
-    /// Path to the FFmpeg executable used for video encoding.
-    /// This is required.
-    /// </summary>
     [JsonPropertyName("ffmpegPath")]
+    [CliOption("--ffmpeg-path", description: "Path to ffmpeg executable")]
     public string FfmpegPath { get; set; }
 
-    /// <summary>
-    /// Path to the C# script (.csx) that defines the animation.
-    /// This is required.
-    /// </summary>
     [JsonPropertyName("scriptFile")]
+    [CliOption("--script", "-s", "Animation script file (.csx)")]
     public string ScriptFile { get; set; }
 }

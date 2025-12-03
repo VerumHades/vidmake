@@ -84,7 +84,7 @@ namespace Vidmake.src.scene
 
         /// <summary>
         /// Advances the scene to the next animation frame over a specified duration.
-        /// 
+        ///
         /// This generates frames for all elements based on their current and next states,
         /// then commits each element's next state as the new current state.
         /// </summary>

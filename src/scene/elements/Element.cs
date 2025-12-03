@@ -13,7 +13,7 @@ namespace Vidmake.src.scene.elements
     {
         /// <summary>
         /// The interpolator used to compute intermediate states between
-        /// Current and Next values for smooth animations. 
+        /// Current and Next values for smooth animations.
         /// Defaults to linear interpolation.
         /// </summary>
         public IInterpolator AnimationInterpolator { get; } = LinearInterpolator.Instance;
