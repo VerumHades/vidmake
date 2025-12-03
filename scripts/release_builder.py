@@ -15,7 +15,7 @@ RUNTIME = "win-x64"  # adjust if targeting another runtime
 TEMPLATE_RELEASE_DIR = os.path.join("template", "release")
 FFMPEG_DOWNLOAD_PATH = Path("template") / "ffmpeg"
 BUILD_OUTPUT_DIR = os.path.join("bin", CONFIGURATION, FRAMEWORK, RUNTIME)
-ZIP_OUTPUT_FILE = "Vidmake_Release.zip"
+ZIP_OUTPUT_FILE = "sample.zip"
 
 INCLUDE_FFMPEG = True
 

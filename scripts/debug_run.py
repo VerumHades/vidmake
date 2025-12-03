@@ -54,7 +54,7 @@ def run_debug():
             "--config", str(TEMPLATE_RELEASE_DIR / "config.json"),
             "--script", str(TEMPLATE_RELEASE_DIR / "animation.csx"),
             "--ffmpeg-path", str(ffmpeg_path),
-            "--output-file", str(Path("output") / "video.mp4")
+            "--output", str(Path("output") / "video.mp4")
         ],
         text=True
     )

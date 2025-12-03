@@ -5,6 +5,7 @@
 2. [Implemented Elements](#implemented-elements)
    - [Rectangle](#rectangle)
    - [Plot2D](#plot2d)
+
 ## Base Element
 
 | Member / Method | Type | Description |
@@ -20,7 +21,7 @@
 > The `zIndex` determines the drawing order: elements with higher values appear above lower ones.
 
 Everything actor in a scene is an element.
-![img](images/pipeline/element.png) 
+![img](images/pipeline/element.png)
 Elements in a scene are placed in layers, higher zIndex is placed on top.
 ![img](images/pipeline/zindex_layers.png)
 Elements can and likely will have a set next positions:

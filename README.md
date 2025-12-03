@@ -2,6 +2,8 @@
 
 A lightweight C# framework for programmatic video creation, inspired by [Manim](https://github.com/ManimCommunity/manim). Supports frame-by-frame rendering of drawable elements, animations via interpolators, and output to video through **FFmpeg**.
 
+For anybody interested in the inner workings you can find the developer documentation here: [Developer documentation](doc/DEVELOPER.md)
+
 ## Warning
 
 **Rendering scripts are not sandboxed.**  
@@ -13,6 +15,7 @@ Use at your own risk. The author is not liable for any damage, data loss, or sec
 
 You can find the [latest release here](https://github.com/VerumHades/vidmake/releases/latest)
 When you are ready check out what you can do in the video [scripts](#video-scripting)
+
 ### Running the sample project
 
 The quickest way to get setup. Includes the standalone binary, ffmpeg and a sample script with a config.
@@ -40,6 +43,7 @@ unzipped_sample/
 2. Navigate to the root folder (one with `config.json` in it), open a console;
 
 You can render the sample video using:
+
 ```bash
 bin\\Vidmake --config config.json
 ```
@@ -54,24 +58,38 @@ You can download it in the latest releases under `standalone`.
 
 You can configure the rendering pipeline using **command-line arguments** or a **JSON config file**.
 
-### Command-Line Arguments
+## Command-Line Arguments
 
-| Option          | Description |
-|-----------------|-------------|
-| `--width`       | Width of the video in pixels |
-| `--height`      | Height of the video in pixels |
-| `--fps`         | Frames per second |
-| `--output-file` | Output video file path |
-| `--ffmpeg-path` | Path to the FFmpeg executable |
-| `--ffmpeg-echo` | Whether to asynchronously print ffmpeg output |
-| `--script` | Path to the C# script (`.csx`) defining the scene and elements |
-| `--config` | Path a [json](#json-config) configuration file |
+| Option | Short | Description |
+|--------|-------|-------------|
+| `--width` | `-w` | Width of the video in pixels |
+| `--height` | `-h` | Height of the video in pixels |
+| `--fps` | `-f` | Frames per second |
+| `--output` | `-o` | Output video file path |
+| `--ffmpeg-path` | — | Path to the FFmpeg executable |
+| `--ffmpeg-echo` | — | Whether to asynchronously print FFmpeg output |
+| `--console-color` | — | Enables colored console output |
+| `--ffmpeg-hardware-acceleration` | — | Enables hardware-accelerated encoding (may fail on unsupported hardware) |
+| `--script` | `-s` | Path to the C# script (`.csx`) defining the animation |
+| `--config` | - |Path to a JSON configuration file |
 
-Example:
+## Examples
+
+### Full CLI Invocation
 
 ```bash
-Vidmake --width 1920 --height 1080 --fps 60 --output-file video.mp4 --ffmpeg-path ffmpeg.exe --script myscene.csx --ffmpeg-echo true
+Vidmake \
+    --width 1920 \
+    --height 1080 \
+    --fps 60 \
+    --output output.mp4 \
+    --ffmpeg-path ffmpeg.exe \
+    --script scene.csx \
+    --ffmpeg-echo \
+    --console-color \
+    --ffmpeg-hardware-acceleration
 ```
+
 Or simply:
 
 ```bash
@@ -81,15 +99,18 @@ Vidmake --config config.json
 ### JSON Config
 
 Instead of repeating arguments, you can provide a JSON configuration file. Example:
+
 ```json
 {
-    "width": 1920,
-    "height": 1080,
-    "fps": 60,
-    "outputFile": "video.mp4",
-    "ffmpegPath": "ffmpeg\\win-x86\\ffmpeg.exe",
-    "ffmpegEcho": true,
-    "scriptFile": "myscene.csx"
+  "width": 1920,
+  "height": 1080,
+  "fps": 60,
+  "ffmpegEcho": true,
+  "consoleColorEnabled": true,
+  "ffmpegHardwareAcceleration": true,
+  "outputFile": "output_video.mp4",
+  "ffmpegPath": "C:\\ffmpeg\\bin\\ffmpeg.exe",
+  "scriptFile": "myscene.csx"
 }
 ```
 
@@ -126,7 +147,6 @@ Lets go trough it step by step:
 3. The `Go` command is called with the duration of `1 second`, thus frames are rendered such that in 1 second both the rectangles have moved to their next positions.
 4. Only one rectangles next position is set (the other one will remain static during the next animation sequence)
 5. The `Go` command is called again, the one rectangle that is not in its designated position moves to it in the 1 second time frame.
-
 
 ## Third-Party Software
 

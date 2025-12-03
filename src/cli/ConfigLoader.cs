@@ -48,7 +48,15 @@ namespace Vidmake.src.cli
                 var attr = prop.GetCustomAttribute<CliOptionAttribute>();
                 if (attr == null) continue;
 
-                if (!dict.TryGetValue(attr.Name, out var value))
+                string? value = null;
+                
+                if (!dict.TryGetValue(attr.Name, out value))
+                {
+                    if (attr.ShortName != null)
+                        dict.TryGetValue(attr.ShortName, out value);
+                }
+
+                if (value == null)
                     continue;
 
                 object converted;
@@ -82,7 +90,6 @@ namespace Vidmake.src.cli
                 else
                     dict[key] = null; // boolean flag
             }
-
             return dict;
         }
     }

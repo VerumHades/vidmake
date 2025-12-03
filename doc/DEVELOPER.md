@@ -48,7 +48,7 @@ The rendering sequence for an element goes like this:
 
 #### DrawableArea
 
-![img](images/pipeline/drawable_area.png) 
+![img](images/pipeline/drawable_area.png)
 
 | Member / Method | Type | Description |
 |-----------------|------|-------------|
