@@ -79,18 +79,20 @@ class Program
                     return;
                 }
 
-                using var videoWriter = new FfmpegVideoWriter(
+                VideoFormat format = new VideoFormat(
                     config.Width,
                     config.Height,
                     config.FPS,
-                    PixelFormat.RGB,
+                    PixelFormat.RGB
+                );
+
+                using var videoWriter = new FfmpegVideoWriter(
+                    format,
                     config.OutputFile,
-                    config.FfmpegPath,
-                    config.FfmpegEcho
+                    config.FfmpegPath
                 );
 
                 var target = new RawRenderTarget(videoWriter, new ConsoleProgressReporter());
-
                 var scene = new Scene(target);
                 
                 try
@@ -103,10 +105,6 @@ class Program
                 catch (Exception)
                 {
                     
-                }
-                finally
-                {
-                    videoWriter.Dispose();
                 }
             },
             configOption, widthOption, heightOption, fpsOption, outputOption, ffmpegOption, ffmpegEchoOption, scriptOption

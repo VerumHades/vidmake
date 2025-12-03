@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Vidmake.src.logging;
 
 namespace Vidmake.src.rendering.writers
 {
@@ -6,46 +7,27 @@ namespace Vidmake.src.rendering.writers
     /// Implements IVideoWriter by streaming raw frames to an FFmpeg process.
     /// Supports RGB, RGBA, and Grayscale pixel formats.
     /// </summary>
-    public class FfmpegVideoWriter : IVideoWriter, IDisposable
+    public class FfmpegVideoWriter: IVideoWriter, IDisposable
     {
-        private readonly string ffmpegPath;         // Path to FFmpeg executable
-        private readonly Process ffmpegProcess;     // FFmpeg process
-        private readonly Stream ffmpegInputStream;  // Standard input stream for writing frames
-        private bool disposed = false;              // Tracks disposal status
+        private readonly string ffmpegPath;         
+        private readonly Process ffmpegProcess;     
+        private readonly Stream ffmpegInputStream;            
 
-        /// <summary>Pixel format of the video frames.</summary>
-        public PixelFormat PixelFormat { get; private set; }
-
-        /// <summary>Frames per second.</summary>
-        public int FPS { get; private set; }
-
-        /// <summary>Video width in pixels.</summary>
-        public int Width { get; private set; }
-
-        /// <summary>Video height in pixels.</summary>
-        public int Height { get; private set; }
-
-        /// <summary>Size of one frame in bytes.</summary>
-        public int FrameSizeInBytes { get; private set; }
-        const int maxAttempts = 5;
+        public VideoFormat Format {get;}
 
         /// <summary>
         /// Constructor. Starts an FFmpeg process and prepares it to receive raw frames.
         /// </summary>
-        public FfmpegVideoWriter(int width, int height, int targetFPS, PixelFormat pixelFormat, string outputFilename, string ffmpegPath, bool echo)
+        public FfmpegVideoWriter(VideoFormat format, string outputFilename, string ffmpegPath)
         {
-            FPS = targetFPS;
-            PixelFormat = pixelFormat;
-            Width = width;
-            Height = height;
-            FrameSizeInBytes = Width * Height * (int)PixelFormat;
+            Format = format;
 
             this.ffmpegPath = ffmpegPath;
             if (!File.Exists(ffmpegPath))
                 throw new FileNotFoundException("FFmpeg executable not found", ffmpegPath);
 
             string? encoder = GetHardwareEncoder();
-            Console.WriteLine("Using encoder: " + encoder);
+
             ffmpegProcess = new Process
             {
                 StartInfo = new ProcessStartInfo
@@ -54,9 +36,9 @@ namespace Vidmake.src.rendering.writers
                     Arguments =
                             $"-y " +
                             $"-f rawvideo " +
-                            $"-pix_fmt {GetFormatString(PixelFormat)} " +
-                            $"-s:v {width}x{height} " +
-                            $"-r {targetFPS} " +
+                            $"-pix_fmt {GetFormatString(format.PixelFormat)} " +
+                            $"-s:v {format.Width}x{format.Height} " +
+                            $"-r {format.FPS} " +
                             $"-i pipe:0 " +
                             (encoder != null ? $"-c:v {encoder} " : "") +
                             $"-preset fast " +
@@ -79,7 +61,7 @@ namespace Vidmake.src.rendering.writers
                 string? line;
                 while ((line = await ffmpegProcess.StandardError.ReadLineAsync()) != null)
                 {
-                    if(echo) Console.WriteLine("[ffmpeg] " + line);
+
                 }
             });
 
@@ -146,57 +128,23 @@ namespace Vidmake.src.rendering.writers
         }
 
         /// <summary>
-        /// Finalizes the video by flushing and closing the FFmpeg process.
-        /// </summary>
-        public void FinishVideo()
-        {
-            if (disposed) return;
-
-            ffmpegInputStream.Flush();
-            ffmpegInputStream.Close();
-
-            //string errors = ffmpegProcess.StandardError.ReadToEnd();
-            ffmpegProcess.WaitForExit();
-
-            if (ffmpegProcess.ExitCode != 0)
-                throw new Exception($"FFmpeg exited with code {ffmpegProcess.ExitCode}.");
-
-            disposed = true;
-        }
-
-        /// <summary>
-        /// Disposes the video writer and ensures the video is finalized.
-        /// </summary>
-        public void Dispose()
-        {
-            if (!disposed)
-            {
-                FinishVideo();
-            }
-        }
-
-        /// <summary>
         /// Writes a sequence of raw frames to FFmpeg.
         /// </summary>
         /// <param name="bytes">Byte array containing frame data.</param>
         /// <param name="frameCount">Number of frames in the array.</param>
         public void Write(byte[] bytes, int frameCount)
         {
-            int size = frameCount * FrameSizeInBytes;
+            int size = frameCount * Format.FrameSizeInBytes;
             if (bytes.Length < size)
                 throw new InvalidDataException("Invalid amount of frame data.");
 
-            for (int attempt = 0; attempt < maxAttempts; attempt++)
+            try
             {
-                try
-                {
-                    ffmpegInputStream.Write(bytes, 0, size);
-                    break;
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex);
-                }
+                ffmpegInputStream.Write(bytes, 0, size);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
             }
         }
 
@@ -206,6 +154,18 @@ namespace Vidmake.src.rendering.writers
         public void Flush()
         {
             ffmpegInputStream.Flush();
+        }
+
+        public void Dispose()
+        {
+            ffmpegInputStream.Flush();
+            ffmpegInputStream.Close();
+
+            //string errors = ffmpegProcess.StandardError.ReadToEnd();
+            ffmpegProcess.WaitForExit();
+
+            if (ffmpegProcess.ExitCode != 0)
+                throw new Exception($"FFmpeg exited with code {ffmpegProcess.ExitCode}.");
         }
     }
 }

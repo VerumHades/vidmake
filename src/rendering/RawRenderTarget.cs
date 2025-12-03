@@ -30,7 +30,7 @@ namespace Vidmake.src.rendering
 
             this.maxParallelRenderFrameCount = maxParallelRenderFrameCount;
             this.videoWriter = videoWriter;
-            framesBuffer = new byte[videoWriter.FrameSizeInBytes * maxParallelRenderFrameCount];
+            framesBuffer = new byte[videoWriter.Format.FrameSizeInBytes * maxParallelRenderFrameCount];
         }
 
         /// <summary>
@@ -42,7 +42,7 @@ namespace Vidmake.src.rendering
         /// <param name="seconds">The duration (in seconds) to advance the scene.</param>
         public override void AddElementFrames(Func<IEnumerable<Element>> createElementEnumerator, int seconds)
         {
-            int frameCount = seconds * videoWriter.FPS; // total number of frames to render
+            int frameCount = seconds * videoWriter.Format.FPS; // total number of frames to render
             int totalChunks = (int)Math.Ceiling((double)frameCount / maxParallelRenderFrameCount); // number of chunks
 
             RenderStateReporter?.RenderSequenceBegin(frameCount);
@@ -62,7 +62,7 @@ namespace Vidmake.src.rendering
                     float animationPercentage = (startFrame + i) / (float)frameCount;
 
                     RenderFrame(
-                        framesBuffer.AsSpan(i * videoWriter.FrameSizeInBytes, videoWriter.FrameSizeInBytes),
+                        framesBuffer.AsSpan(i * videoWriter.Format.FrameSizeInBytes, videoWriter.Format.FrameSizeInBytes),
                         createElementEnumerator(),
                         animationPercentage
                     );
@@ -91,13 +91,13 @@ namespace Vidmake.src.rendering
 
                 var area = new DrawableArea(
                     target,
-                    videoWriter.Width,
-                    videoWriter.Height,
+                    videoWriter.Format.Width,
+                    videoWriter.Format.Height,
                     transform.X,
                     transform.Y,
                     transform.Width,
                     transform.Height,
-                    videoWriter.PixelFormat
+                    videoWriter.Format.PixelFormat
                 );
 
                 element.Render(ref area, animationPercentage);
