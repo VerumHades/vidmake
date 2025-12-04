@@ -19,7 +19,6 @@ static class Program
         var logger = new DomainReporter(consoleReporter);
         var systemReporter = logger.NewReporter("system");
 
-
         VideoConfig? config;
         try {
             config = ConfigLoader<VideoConfig>.Load(args);
@@ -46,7 +45,7 @@ static class Program
             return;
         }
 
-        if (!PathChecking.CanCreateFile(config.OutputFile))
+        if (!PathChecking.CanCreateFileAtPath(config.OutputFile))
         {
             systemReporter.Error($"Cannot create output file: {config.OutputFile}");
             return;
@@ -58,7 +57,6 @@ static class Program
             return;
         }
 
-        if(!config.FfmpegEcho) logger.Disable("ffmpeg");
         
         try
         {
@@ -76,6 +74,7 @@ static class Program
                 config.FfmpegHardwareAcceleration
             );
             logger.Add("ffmpeg", videoWriter);
+            if(!config.FfmpegEcho) logger.Disable("ffmpeg");
 
             var renderProbe = logger.Add("renderer", new RenderLoggingProbe());
             var target = new RawRenderTarget(videoWriter, renderProbe, config.FrameBufferMaxSizeBytes);
