@@ -42,7 +42,6 @@ static class Program
         );
         var systemReporter = logger.NewReporter("system");
         if(!config.FfmpegEcho) logger.Disable("ffmpeg");
-
         
         try
         {
@@ -59,9 +58,9 @@ static class Program
                 config.FfmpegPath,
                 config.FfmpegHardwareAcceleration
             );
-            logger.Add("renderer", videoWriter);
+            logger.Add("ffmpeg", videoWriter);
 
-            var renderProbe = logger.Add("ffmpeg", new RenderLoggingProbe());
+            var renderProbe = logger.Add("renderer", new RenderLoggingProbe());
             var target = new RawRenderTarget(videoWriter, renderProbe, config.FrameBufferMaxSizeBytes);
             var scene = new Scene(target);
 
