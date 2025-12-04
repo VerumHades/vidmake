@@ -15,32 +15,49 @@ static class Program
 {
     static void Main(string[] args)
     {
-        var config = ConfigLoader<VideoConfig>.Load(args);
+        var consoleReporter = new ConsoleReporter(false);
+        var logger = new DomainReporter(consoleReporter);
+        var systemReporter = logger.NewReporter("system");
+
+
+        VideoConfig? config;
+        try {
+            config = ConfigLoader<VideoConfig>.Load(args);
+        }
+        catch(Exception ex)
+        {
+            systemReporter.Error($"Failed to load configuration: {ex.Message}");
+            return;
+        }
+
+        consoleReporter.UseColors = config.ConsoleColorEnabled;
 
         if (string.IsNullOrEmpty(config.OutputFile) ||
             string.IsNullOrEmpty(config.FfmpegPath) ||
             string.IsNullOrEmpty(config.ScriptFile))
         {
-            Console.WriteLine("Missing required parameters: output-file, ffmpeg-path, script");
+            systemReporter.Error("Missing required parameters: output-file, ffmpeg-path, script");
             return;
         }
 
         if (!File.Exists(config.FfmpegPath))
         {
-            Console.WriteLine($"FFmpeg not found at {config.FfmpegPath}");
+            systemReporter.Error($"FFmpeg not found at {config.FfmpegPath}");
+            return;
+        }
+
+        if (!PathChecking.CanCreateFile(config.OutputFile))
+        {
+            systemReporter.Error($"Cannot create output file: {config.OutputFile}");
             return;
         }
 
         if (!File.Exists(config.ScriptFile))
         {
-            Console.WriteLine($"Script file not found: {config.ScriptFile}");
+            systemReporter.Error($"Script file not found: {config.ScriptFile}");
             return;
         }
 
-        var logger = new DomainReporter(
-            new ConsoleReporter(config.ConsoleColorEnabled)
-        );
-        var systemReporter = logger.NewReporter("system");
         if(!config.FfmpegEcho) logger.Disable("ffmpeg");
         
         try
