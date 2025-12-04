@@ -1,5 +1,6 @@
 
 using System.CommandLine;
+using System.Drawing;
 using System.Reflection;
 using System.Text.Json;
 using Vidmake.src;
@@ -8,8 +9,9 @@ using Vidmake.src.logging;
 using Vidmake.src.rendering;
 using Vidmake.src.rendering.writers;
 using Vidmake.src.scene;
+using Vidmake.src.scene.elements;
 
-class Program
+static class Program
 {
     static void Main(string[] args)
     {
@@ -35,41 +37,70 @@ class Program
             return;
         }
 
-        VideoFormat format = new VideoFormat(
-            config.Width,
-            config.Height,
-            config.FPS,
-            PixelFormat.RGB
+        var logger = new DomainReporter(
+            new ConsoleReporter(config.ConsoleColorEnabled)
         );
+        var systemReporter = logger.NewReporter("system");
+        if(!config.FfmpegEcho) logger.Disable("ffmpeg");
 
-        var domainReporter = new DomainReporter(new ConsoleReporter(config.ConsoleColorEnabled));
-
-        var ffmpegReporter = domainReporter.NewReporter("ffmpeg");
-        var rendererReporter = domainReporter.NewReporter("renderer");
-
-        if(!config.FfmpegEcho) domainReporter.Disable("ffmpeg");
-
-        using var videoWriter = new FfmpegVideoWriter(
-            format,
-            config.OutputFile,
-            config.FfmpegPath,
-            config.FfmpegHardwareAcceleration,
-            ffmpegReporter
-        );
-
-        var target = new RawRenderTarget(videoWriter, new RenderLoggingProbe(rendererReporter));
-        var scene = new Scene(target);
-
+        
         try
         {
-            var invoker = new ScriptInvoker<Scene>(scene);
+            VideoFormat format = new VideoFormat(
+                config.Width,
+                config.Height,
+                config.FPS,
+                PixelFormat.RGB
+            );
+
+            using var videoWriter = new FfmpegVideoWriter(
+                format,
+                config.OutputFile,
+                config.FfmpegPath,
+                config.FfmpegHardwareAcceleration
+            );
+            logger.Add("renderer", videoWriter);
+
+            var renderProbe = logger.Add("ffmpeg", new RenderLoggingProbe());
+            var target = new RawRenderTarget(videoWriter, renderProbe, config.FrameBufferMaxSizeBytes);
+            var scene = new Scene(target);
+
+            var invoker = new ScriptInvoker<Scene>(
+                scene,
+                imports: new[] {
+                    "System",
+                    "System.Math",
+                    "Vidmake.src",
+                    "Vidmake.src.scene",
+                    "Vidmake.src.scene.elements",
+                    "Vidmake.src.positioning"
+                },
+                references: new[] {
+                    typeof(Scene).Assembly,
+                    typeof(Vidmake.src.scene.elements.Rectangle).Assembly,
+                    typeof(Pixel).Assembly,
+                    typeof(Plot2D).Assembly
+                }
+            );
+            logger.Add("script", invoker);
+
             invoker.Execute(File.ReadAllText(config.ScriptFile));
-
-            Console.WriteLine("Video rendering complete!");
         }
-        catch (Exception)
+        catch (InvalidOperationException ex)
         {
-
+            systemReporter.Error($"Invalid operation: {ex.Message}");
+        }
+        catch (ArgumentOutOfRangeException ex)
+        {
+            systemReporter.Error($"Argument out of range: {ex.Message}");
+        }
+        catch (OverflowException ex)
+        {
+            systemReporter.Error($"Argument overflowed: {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            systemReporter.Error($"Unexpected exception: {ex.Message}");
         }
     }
 }

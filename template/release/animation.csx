@@ -6,15 +6,15 @@ rect.Move(100,0);
 rect2.Move(100,0);
 Go(1);
 
-rect.zIndex.Value = 1;
+rect.ZIndex.Value = 1;
 rect2.Move(100,200);
 rect.Move(100,200);
 Go(1);
 
-rect2.zIndex.Value = 2;
+rect2.ZIndex.Value = 2;
 rect2.Move(300,200);
 rect.Move(300,200);
-Go(1);
+Go(10);
 
 var plot = Add(new Plot2D());
 plot.X.Next = 300;

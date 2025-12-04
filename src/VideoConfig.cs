@@ -42,4 +42,8 @@ public class VideoConfig
     [JsonPropertyName("scriptFile")]
     [CliOption("--script", "-s", "Animation script file (.csx)")]
     public string ScriptFile { get; set; }
+
+    [JsonPropertyName("frameBufferMaxSize")]
+    [CliOption("--frame-buffer-max-size", "-f", "Max size of the frame buffer for parallelized rendering of frames in bytes.")]
+    public long FrameBufferMaxSizeBytes { get; set; } = 256 * 1024 * 1024;
 }

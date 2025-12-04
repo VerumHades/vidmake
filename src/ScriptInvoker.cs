@@ -1,75 +1,84 @@
+using System.Reflection;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.Scripting;
-using Vidmake.src.scene.elements;
+using Vidmake.src.logging;
 
 namespace Vidmake.src
 {
     /// <summary>
     /// Handles execution of external C# scripts with access to a provided API.
     /// </summary>
-    public class ScriptInvoker<TApi> where TApi : class
+    public class ScriptInvoker<TApi>: IReportable where TApi : class
     {
-        /// <summary>
-        /// The API instance that scripts can use.
-        /// </summary>
         public TApi Api { get; }
+        public IReporter Reporter { get; set; } = NullReporter.Instance;
+
+        private readonly IEnumerable<string> imports;
+        private readonly IEnumerable<Assembly> references;
 
         /// <summary>
         /// Creates a new ScriptInvoker for a given API object.
+        /// Allows specifying custom imports and assembly references.
         /// </summary>
-        /// <param name="api">The API object scripts will interact with.</param>
-        public ScriptInvoker(TApi api)
+        public ScriptInvoker(
+            TApi api,
+            IEnumerable<string>? imports = null,
+            IEnumerable<Assembly>? references = null
+            )
         {
             Api = api ?? throw new ArgumentNullException(nameof(api));
+
+
+
+            this.imports = imports ?? new[]
+            {
+                "System",
+                "System.Math",
+            };
+            
+            this.references = references ?? new[]
+            {
+                typeof(TApi).Assembly,
+            };
         }
 
         /// <summary>
         /// Executes a C# script synchronously.
         /// </summary>
-        /// <param name="scriptCode">The C# script code to execute.</param>
         public void Execute(string scriptCode)
         {
             if (string.IsNullOrWhiteSpace(scriptCode))
                 throw new ArgumentException("Script code cannot be empty.", nameof(scriptCode));
 
             var options = ScriptOptions.Default
-                .WithImports("System", "System.Math", "Vidmake.src", "Vidmake.src.scene", "Vidmake.src.scene.elements", "Vidmake.src.positioning")
-                .WithReferences(typeof(TApi).Assembly)
-                .WithReferences(typeof(Rectangle).Assembly)
-                .WithReferences(typeof(Pixel).Assembly)
-                .WithReferences(typeof(Plot2D).Assembly)
-                .WithReferences(typeof(TApi).Assembly);
+                .WithImports(imports)
+                .WithReferences(references);
 
             try
             {
-                // Synchronous execution
                 CSharpScript.RunAsync(scriptCode, options: options, globals: Api)
                            .GetAwaiter().GetResult();
             }
             catch (CompilationErrorException e)
             {
-                // Red text for compilation errors
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine(new string('=', 60));
-                Console.WriteLine(" SCRIPT COMPILATION ERROR ");
-                Console.WriteLine(new string('=', 60));
+                Reporter.Error(new string('=', 60));
+                Reporter.Error(" SCRIPT COMPILATION ERROR ");
+                Reporter.Error(new string('=', 60));
 
                 foreach (var diag in e.Diagnostics)
-                    Console.WriteLine($"  - {diag}");
-
-                Console.ResetColor();
+                    Reporter.Error($"  - {diag}");
+                
                 throw;
             }
             catch (Exception ex)
             {
-                // Yellow text for runtime errors
-                Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine(new string('=', 60));
-                Console.WriteLine(" SCRIPT EXECUTION ERROR ");
-                Console.WriteLine(new string('=', 60));
+                Reporter.Error(new string('=', 60));
+                Reporter.Error(" SCRIPT EXECUTION ERROR ");
+                Reporter.Error(new string('=', 60));
 
-                Console.WriteLine($"  {ex.Message}");
-                Console.ResetColor();
+                Reporter.Error($"  {ex.Message}");
+
+
                 throw;
             }
         }

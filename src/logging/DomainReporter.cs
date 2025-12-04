@@ -26,6 +26,12 @@ namespace Vidmake.src.logging
                     mainReporter.Message($"[{name}] {msg}");
             };
 
+            reporter.WarningHandler = msg =>
+            {
+                if (!reporters[name].disabled)
+                    mainReporter.Warn($"[{name}] {msg}");
+            };
+
             reporter.ErrorHandler = msg =>
             {
                 if (!reporters[name].disabled)
@@ -34,6 +40,12 @@ namespace Vidmake.src.logging
 
             reporters[name] = (reporter, false); // enabled by default
             return reporter;
+        }
+
+        public T Add<T>(string name, T reportable) where T: IReportable
+        {
+            reportable.Reporter = NewReporter(name);
+            return reportable;
         }
 
         public void Enable(string name)

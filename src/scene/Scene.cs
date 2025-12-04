@@ -53,14 +53,14 @@ namespace Vidmake.src.scene
         /// <returns>The element that was added, for convenience.</returns>
         public T Add<T>(T element) where T : Element
         {
-            var layer = GetOrCreateLayer(element.zIndex.Value);
+            var layer = GetOrCreateLayer(element.ZIndex.Value);
             layer.Add(element);
 
-            element.zIndex.AddChangedListener((nextZIndex) =>
+            element.ZIndex.AddChangedListener((nextZIndex) =>
             {
-                if (nextZIndex == element.zIndex.Value) return;
+                if (nextZIndex == element.ZIndex.Value) return;
 
-                elements[element.zIndex.Value].Remove(element);
+                elements[element.ZIndex.Value].Remove(element);
                 GetOrCreateLayer(nextZIndex).Add(element);
             });
 

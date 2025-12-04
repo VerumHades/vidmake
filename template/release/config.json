@@ -4,5 +4,6 @@
   "fps": 60,
   "outputFile": "video.mp4",
   "ffmpegPath": "ffmpeg\\ffmpeg.exe",
-  "scriptFile": "animation.csx"
+  "scriptFile": "animation.csx",
+  "frameBufferMaxSize": 1073741824
 }

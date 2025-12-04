@@ -38,5 +38,20 @@ namespace Vidmake.src.logging
                 Console.WriteLine(message);
             }
         }
+
+        public void Warn(string message)
+        {
+            if (UseColors)
+            {
+                var old = Console.ForegroundColor;
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine(message);
+                Console.ForegroundColor = old;
+            }
+            else
+            {
+                Console.WriteLine(message);
+            }
+        }
     }
 }

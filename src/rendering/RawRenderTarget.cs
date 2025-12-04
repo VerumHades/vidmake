@@ -1,3 +1,4 @@
+using Vidmake.src.logging;
 using Vidmake.src.rendering.writers;
 using Vidmake.src.scene.elements;
 
@@ -23,14 +24,49 @@ namespace Vidmake.src.rendering
         /// </summary>
         /// <param name="videoWriter">The video writer to output frames to.</param>
         /// <param name="videoWriter">The video writer to output frames to.</param>
-        public RawRenderTarget(IVideoWriter videoWriter, IRenderStateProbe? reporter = null, int maxParallelRenderFrameCount = 64)
+        public RawRenderTarget(
+            IVideoWriter videoWriter,
+            IRenderStateProbe? reporter = null,
+            long maxBufferSizeInBytes = 256 * 1024 * 1024 // 256MB
+        )
         {
+            if (maxBufferSizeInBytes <= 0)
+                throw new ArgumentOutOfRangeException(nameof(maxBufferSizeInBytes),
+                    "maxBufferSizeInBytes must be positive.");
+
             RenderStateReporter = reporter;
             RenderStateReporter?.RenderBegin(videoWriter);
 
-            this.maxParallelRenderFrameCount = maxParallelRenderFrameCount;
             this.videoWriter = videoWriter;
-            framesBuffer = new byte[videoWriter.Format.FrameSizeInBytes * maxParallelRenderFrameCount];
+
+            int frameSizeInBytes = videoWriter.Format.FrameSizeInBytes;
+            long possibleFrames = maxBufferSizeInBytes / frameSizeInBytes;
+            maxParallelRenderFrameCount = (int)Math.Min(possibleFrames, int.MaxValue);
+
+            if(maxParallelRenderFrameCount <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(maxBufferSizeInBytes),
+                    $"maxBufferSizeInBytes the size specified didnt amount to a single frame, at least one frame must fit into the specified size, currently: {frameSizeInBytes} bytes per frame.");
+            }
+
+            try
+            {
+                checked
+                {
+                    int totalBuffer = frameSizeInBytes * maxParallelRenderFrameCount;
+                    framesBuffer = new byte[frameSizeInBytes * maxParallelRenderFrameCount];  
+                }
+            }
+            catch (OverflowException ex)
+            {
+                throw new InvalidOperationException(
+                    "Overflow occurred while allocating frames buffer. Total buffer size exceeds maximum supported array size.", ex);
+            }
+            catch (OutOfMemoryException ex)
+            {
+                throw new InvalidOperationException(
+                    $"Cannot allocate frames buffer of size {frameSizeInBytes * maxParallelRenderFrameCount} bytes.", ex);
+            }
         }
 
         /// <summary>

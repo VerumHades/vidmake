@@ -71,6 +71,7 @@ You can configure the rendering pipeline using **command-line arguments** or a *
 | `--console-color` | — | Enables colored console output |
 | `--ffmpeg-hardware-acceleration` | — | Enables hardware-accelerated encoding (may fail on unsupported hardware) |
 | `--script` | `-s` | Path to the C# script (`.csx`) defining the animation |
+| `--frame-buffer-max-size` | `-f` | Max size of the frame buffer for parallelized rendering of frames in bytes |
 | `--config` | - |Path to a JSON configuration file |
 
 ## Examples

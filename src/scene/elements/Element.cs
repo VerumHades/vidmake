@@ -22,7 +22,7 @@ namespace Vidmake.src.scene.elements
         /// Determines the rendering layer of the element.
         /// Elements with higher z-index values are drawn on top of those with lower values.
         /// </summary>
-        public ObservableProperty<int> zIndex { get; } = new(0);
+        public ObservableProperty<int> ZIndex { get; } = new(0);
 
         /// <summary>
         /// Applies the next animation state to the current state.

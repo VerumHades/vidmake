@@ -4,6 +4,7 @@ namespace Vidmake.src.logging
     {
         public Action<string>? ErrorHandler { get; set; }
         public Action<string>? MessageHandler { get; set; }
+        public Action<string>? WarningHandler { get; set; }
 
         public void Error(string message)
         {
@@ -13,6 +14,11 @@ namespace Vidmake.src.logging
         public void Message(string message)
         {
             MessageHandler?.Invoke(message);
+        }
+
+        public void Warn(string message)
+        {
+            WarningHandler?.Invoke(message);
         }
     }
 }

@@ -1,4 +1,3 @@
-using Vidmake.src.rendering.writers;
 
 namespace Vidmake.src.rendering
 {
@@ -35,7 +34,7 @@ namespace Vidmake.src.rendering
             if (imageWidth <= 0 || imageHeight <= 0)
                 throw new ArgumentOutOfRangeException(nameof(imageWidth));
 
-            if (subWidth < 0 || subHeight < 0)
+            if (subWidth <= 0 || subHeight <= 0)
                 throw new ArgumentOutOfRangeException(nameof(subWidth));
 
             int requiredLength = imageWidth * imageHeight * (int)format;

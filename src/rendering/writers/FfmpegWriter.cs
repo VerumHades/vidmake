@@ -7,24 +7,22 @@ namespace Vidmake.src.rendering.writers
     /// Implements IVideoWriter by streaming raw frames to an FFmpeg process.
     /// Supports RGB, RGBA, and Grayscale pixel formats.
     /// </summary>
-    public class FfmpegVideoWriter: IVideoWriter, IDisposable
+    public class FfmpegVideoWriter : IReportable, IVideoWriter, IDisposable
     {
         private readonly string ffmpegPath;
         private readonly Process ffmpegProcess;
         private readonly Stream ffmpegInputStream;
 
-        public VideoFormat Format {get;}
+        public VideoFormat Format { get; }
+        public IReporter Reporter { get; set; } = NullReporter.Instance;
 
         /// <summary>
         /// Constructor. Starts an FFmpeg process and prepares it to receive raw frames.
         /// </summary>
-        public FfmpegVideoWriter(VideoFormat format, string outputFilename, string ffmpegPath, bool hardwareAcceleration, IReporter? ffmpegReporter)
+        public FfmpegVideoWriter(VideoFormat format, string outputFilename, string ffmpegPath, bool hardwareAcceleration)
         {
             Format = format;
-
             this.ffmpegPath = ffmpegPath;
-            if (!File.Exists(ffmpegPath))
-                throw new FileNotFoundException("FFmpeg executable not found", ffmpegPath);
 
             string? encoder = hardwareAcceleration ? GetHardwareEncoder() : null;
 
@@ -52,15 +50,45 @@ namespace Vidmake.src.rendering.writers
                 }
             };
 
-            ffmpegProcess.Start();
-            ffmpegInputStream = ffmpegProcess.StandardInput.BaseStream;
-
-            _ = Task.Run(async () =>
+            try
             {
-                string? line;
-                while ((line = await ffmpegProcess.StandardError.ReadLineAsync()) != null)
+                ffmpegProcess.Start();
+                ffmpegInputStream = ffmpegProcess.StandardInput.BaseStream;
+            }
+            catch (FileNotFoundException ex)
+            {
+                Reporter.Error($"FFmpeg executable not found at path '{ffmpegPath}': {ex.Message}");
+                throw;
+            }
+            catch (InvalidOperationException ex)
+            {
+                Reporter.Error($"Invalid process start configuration: {ex.Message}");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Reporter.Error($"Unexpected exception starting FFmpeg: {ex.Message}");
+                throw;
+            }
+
+            Task.Run(async () =>
+            {
+                try
                 {
-                    ffmpegReporter?.Error(line);
+                    string? line;
+                    while ((line = await ffmpegProcess.StandardError.ReadLineAsync()) != null)
+                    {
+                        Reporter.Error(line);
+                    }
+                }
+                catch (ObjectDisposedException) {}
+                catch (IOException ex)
+                {
+                    Reporter.Error($"Error reading FFmpeg stderr: {ex.Message}");
+                }
+                catch (Exception ex)
+                {
+                    Reporter.Error($"Unexpected error reading FFmpeg stderr: {ex.Message}");
                 }
             });
 
@@ -106,7 +134,7 @@ namespace Vidmake.src.rendering.writers
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error running ffmpeg: " + ex.Message);
+                Reporter.Error("Error checking for ffmpeg hardware acceleration drivers: " + ex.Message);
             }
 
             return null; // none found
@@ -141,9 +169,20 @@ namespace Vidmake.src.rendering.writers
             {
                 ffmpegInputStream.Write(bytes, 0, size);
             }
+            catch (ObjectDisposedException ex)
+            {
+                Reporter.Error($"Cannot write to FFmpeg process, stream disposed: {ex.Message}");
+                throw;
+            }
+            catch (IOException ex)
+            {
+                Reporter.Error($"I/O error writing to FFmpeg: {ex.Message}");
+                throw;
+            }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                Reporter.Error($"Unexpected error writing to FFmpeg: {ex.Message}");
+                throw;
             }
         }
 
@@ -152,19 +191,50 @@ namespace Vidmake.src.rendering.writers
         /// </summary>
         public void Flush()
         {
-            ffmpegInputStream.Flush();
+            try
+            {
+                ffmpegInputStream?.Flush();
+            }
+            catch (Exception ex)
+            {
+                Reporter.Warn($"Error flushing FFmpeg input: {ex.Message}");
+                throw;
+            }
         }
 
         public void Dispose()
         {
-            ffmpegInputStream.Flush();
-            ffmpegInputStream.Close();
+            try
+            {
+                ffmpegInputStream?.Flush();
+                ffmpegInputStream?.Close();
+            }
+            catch (Exception ex)
+            {
+                Reporter.Warn($"Error flushing/closing FFmpeg input: {ex.Message}");
+            }
 
-            //string errors = ffmpegProcess.StandardError.ReadToEnd();
-            ffmpegProcess.WaitForExit();
+            try
+            {
+                if (!ffmpegProcess.HasExited)
+                {
+                    ffmpegProcess.WaitForExit();
+                }
 
-            if (ffmpegProcess.ExitCode != 0)
-                throw new Exception($"FFmpeg exited with code {ffmpegProcess.ExitCode}.");
+                if (ffmpegProcess.ExitCode != 0)
+                {
+                    Reporter.Error($"FFmpeg exited with code {ffmpegProcess.ExitCode}.");
+                }
+            }
+            catch (InvalidOperationException ex)
+            {
+                Reporter.Error($"Error checking FFmpeg exit status: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                Reporter.Error($"Unexpected error during FFmpeg shutdown: {ex.Message}");
+            }
         }
+
     }
 }

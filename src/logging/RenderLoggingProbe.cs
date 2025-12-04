@@ -3,24 +3,21 @@ using Vidmake.src.rendering.writers;
 
 namespace Vidmake.src.logging
 {
-    public class RenderLoggingProbe: LoggingProbe, IRenderStateProbe
+    public class RenderLoggingProbe: IReportable, IRenderStateProbe
     {
         private int totalFrames;
         private int renderedFrames;
 
-        public RenderLoggingProbe(IReporter reporter) : base(reporter)
-        {
-            
-        }
+        public IReporter Reporter { get; set; } = NullReporter.Instance;
 
         public void RenderBegin(IVideoWriter writer)
         {
-            Message("Rendering Started");
+            Reporter.Message("Rendering Started");
         }
 
         public void RenderStop()
         {
-            Message("Rendering Stopped");
+            Reporter.Message("Rendering Stopped");
         }
 
         public void RenderSequenceBegin(int framesTotal)
@@ -28,18 +25,18 @@ namespace Vidmake.src.logging
             totalFrames = framesTotal;
             renderedFrames = 0;
 
-            Message($"Render sequence begins. Total frames: {framesTotal}");
+            Reporter.Message($"Render sequence begins. Total frames: {framesTotal}");
         }
 
         public void RenderSequenceEnd()
         {
-            Message("Render sequence completed.");
+            Reporter.Message("Render sequence completed.");
         }
 
         public void FrameChunkRendered(int chunkIndex, int framesRenderedCount)
         {
             renderedFrames += framesRenderedCount;
-            Message($"Chunk {chunkIndex} rendered ({framesRenderedCount} frames). Total rendered: {renderedFrames}/{totalFrames}");
+            Reporter.Message($"Chunk {chunkIndex} rendered ({framesRenderedCount} frames). Total rendered: {renderedFrames}/{totalFrames}");
         }
     }
 }

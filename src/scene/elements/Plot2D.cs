@@ -27,10 +27,10 @@ namespace Vidmake.src.scene.elements
         /// <summary>
         /// Default constructor initializes a 10x10 rectangle with default green color.
         /// </summary>
-        public Plot2D()
+        public Plot2D(int width = 500, int height = 500)
         {
-            Width.Next = 500;
-            Height.Next = 500;
+            Width.Next = width;
+            Height.Next = height;
             ApplyNext();
         }
 
@@ -77,8 +77,6 @@ namespace Vidmake.src.scene.elements
 
                 double normalizedY = intermidiateSample / valueDisplayRange + 0.5;
                 double normalizedX = (double)i / sampleCount;
-
-                //Console.WriteLine(normalizedX + " " + normalizedY);
 
                 for (var j = -5; j < 5; j++)
                 {
