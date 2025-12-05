@@ -57,7 +57,6 @@ static class Program
             return;
         }
 
-        
         try
         {
             VideoFormat format = new VideoFormat(

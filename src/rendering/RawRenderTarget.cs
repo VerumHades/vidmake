@@ -91,10 +91,10 @@ namespace Vidmake.src.rendering
                 int endFrame = Math.Min(startFrame + maxParallelRenderFrameCount, frameCount);
                 int currentChunkSize = endFrame - startFrame;
 
-                //Parallel.For(0, currentChunkSize, i =>
-                //{
-                for (int i = 0; i < currentChunkSize; i++)
+                Parallel.For(0, currentChunkSize, i =>
                 {
+                //for (int i = 0; i < currentChunkSize; i++)
+                //{
                     float animationPercentage = (startFrame + i) / (float)frameCount;
 
                     RenderFrame(
@@ -102,8 +102,8 @@ namespace Vidmake.src.rendering
                         createElementEnumerator(),
                         animationPercentage
                     );
-                }
-                //});
+                //}
+                });
 
                 videoWriter.Write(framesBuffer, currentChunkSize);
                 RenderStateReporter?.FrameChunkRendered(chunkIndex, currentChunkSize);
