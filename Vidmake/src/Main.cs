@@ -1,5 +1,3 @@
-
-using System.CommandLine;
 using System.Drawing;
 using System.Reflection;
 using System.Text.Json;

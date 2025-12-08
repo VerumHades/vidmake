@@ -4,8 +4,9 @@ import subprocess
 from pathlib import Path
 from ffmpeg_setup import download_ffmpeg
 
-FFMPEG_DOWNLOAD_PATH = Path("template") / "ffmpeg"
-TEMPLATE_RELEASE_DIR = Path("template") / "release"
+ROOT_PATH = Path("Vidmake")
+FFMPEG_DOWNLOAD_PATH = ROOT_PATH / "template" / "ffmpeg"
+TEMPLATE_RELEASE_DIR = ROOT_PATH / "template" / "release"
 
 def find_file(directory: Path, filenames: list[str], recursive: bool = True) -> Path:
     """
@@ -46,10 +47,12 @@ ffmpeg_path = find_ffmpeg_executable(FFMPEG_DOWNLOAD_PATH)
 def run_debug():
     """Runs the .NET project in Debug mode."""
     print("Running...")
+
     subprocess.run(
         [
             "dotnet",
             "run",
+            "--project", "Vidmake",
             "--",
             "--config", str(TEMPLATE_RELEASE_DIR / "config.json"),
             "--script", str(TEMPLATE_RELEASE_DIR / "animation.csx"),

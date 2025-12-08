@@ -1,6 +1,10 @@
-bin/
-obj/
+Vidmake/bin/
+Vidmake/obj/
 output/
-ffmpeg_bin/
-template/release/ffmpeg/
-template/ffmpeg/
+Vidmake/ffmpeg_bin/
+Vidmake/template/release/ffmpeg/
+Vidmake/template/ffmpeg/
+scripts/__pycache__/
+
+tests/bin/
+tests/obj/
