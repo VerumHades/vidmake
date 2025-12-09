@@ -8,15 +8,15 @@ using Vidmake.src.cli;
 public class VideoConfig
 {
     [JsonPropertyName("width")]
-    [CliOption("--width", "-w", "Video width in pixels")]
+    [CliOption("--width", "-w", "Video width in pixels", ValidationType.MustBePositive)]
     public int Width { get; set; } = 1920;
 
     [JsonPropertyName("height")]
-    [CliOption("--height", "-h", "Video height in pixels")]
+    [CliOption("--height", "-h", "Video height in pixels", ValidationType.MustBePositive)]
     public int Height { get; set; } = 1080;
 
     [JsonPropertyName("fps")]
-    [CliOption("--fps", "-f", "Frames per second")]
+    [CliOption("--fps", "-f", "Frames per second", ValidationType.MustBePositive)]
     public int FPS { get; set; } = 30;
 
     [JsonPropertyName("ffmpegEcho")]
@@ -32,18 +32,18 @@ public class VideoConfig
     public bool FfmpegHardwareAcceleration { get; set; } = true;
 
     [JsonPropertyName("outputFile")]
-    [CliOption("--output", "-o", "Output video file path")]
+    [CliOption("--output", "-o", "Output video file path", ValidationType.NonEmptyString)]
     public string OutputFile { get; set; }
 
     [JsonPropertyName("ffmpegPath")]
-    [CliOption("--ffmpeg-path", description: "Path to ffmpeg executable")]
+    [CliOption("--ffmpeg-path", description: "Path to ffmpeg executable", validation: ValidationType.NonEmptyString)]
     public string FfmpegPath { get; set; }
 
     [JsonPropertyName("scriptFile")]
-    [CliOption("--script", "-s", "Animation script file (.csx)")]
+    [CliOption("--script", "-s", "Animation script file (.csx)", ValidationType.NonEmptyString)]
     public string ScriptFile { get; set; }
 
     [JsonPropertyName("frameBufferMaxSize")]
-    [CliOption("--frame-buffer-max-size", "-f", "Max size of the frame buffer for parallelized rendering of frames in bytes.")]
+    [CliOption("--frame-buffer-max-size", "Max size of the frame buffer for parallelized rendering of frames in bytes.", validation: ValidationType.MustBePositive)]
     public long FrameBufferMaxSizeBytes { get; set; } = 256 * 1024 * 1024;
 }

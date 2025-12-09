@@ -19,7 +19,7 @@ static class Program
 
         VideoConfig? config;
         try {
-            config = ConfigLoader<VideoConfig>.Load(args);
+            config = new ConfigLoader<VideoConfig>().Load(args);
         }
         catch(Exception ex)
         {

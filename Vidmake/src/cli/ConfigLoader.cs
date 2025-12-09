@@ -3,12 +3,40 @@ using System.Text.Json;
 
 namespace Vidmake.src.cli
 {
-    public static class ConfigLoader<T> where T : new()
+    public class ConfigLoader<T> where T : new()
     {
+        private Dictionary<string, (PropertyInfo, CliOptionAttribute)> options = new();
+        public ConfigLoader()
+        {
+            BuildOptionMap();
+        }
+
+        private void BuildOptionMap()
+        {
+            foreach (var property in typeof(T).GetProperties())
+            {
+                var attribute = property.GetCustomAttribute<CliOptionAttribute>();
+                if (attribute == null) continue;
+
+                if (attribute.Name != null)
+                {
+                    if (options.ContainsKey(attribute.Name))
+                        throw new InvalidOperationException($"Duplicate CLI option: {attribute.Name}");
+                    options[attribute.Name] = (property, attribute);
+                }
+
+                if (attribute.ShortName != null)
+                {
+                    if (options.ContainsKey(attribute.ShortName))
+                        throw new InvalidOperationException($"Duplicate CLI short option: {attribute.ShortName}");
+                    options[attribute.ShortName] = (property, attribute);
+                }
+            }
+        }
         /// <summary>
         /// Loads config from JSON (if --config is present) and applies CLI overrides.
         /// </summary>
-        public static T Load(string[] args)
+        public T Load(string[] args)
         {
             var config = new T();
 
@@ -30,7 +58,7 @@ namespace Vidmake.src.cli
             return null;
         }
 
-        private static T LoadFromJson(T existingConfig, string path)
+        private T LoadFromJson(T existingConfig, string path)
         {
             if (!File.Exists(path))
                 throw new FileNotFoundException($"Config file not found: {path}");
@@ -39,45 +67,8 @@ namespace Vidmake.src.cli
             return JsonSerializer.Deserialize<T>(text) ?? existingConfig;
         }
 
-        private static void ApplyCliOverrides(T config, string[] args)
+        private void ApplyCliOverrides(T config, string[] args)
         {
-            var dict = ParseCliArgs(args);
-
-            foreach (var prop in typeof(T).GetProperties())
-            {
-                var attr = prop.GetCustomAttribute<CliOptionAttribute>();
-                if (attr == null) continue;
-
-                string? value = null;
-                
-                if (!dict.TryGetValue(attr.Name, out value))
-                {
-                    if (attr.ShortName != null)
-                        dict.TryGetValue(attr.ShortName, out value);
-                }
-
-                if (value == null)
-                    continue;
-
-                object converted;
-
-                if (prop.PropertyType == typeof(bool))
-                {
-                    converted = string.IsNullOrEmpty(value) ? true : bool.Parse(value);
-                }
-                else
-                {
-                    converted = Convert.ChangeType(value, prop.PropertyType);
-                }
-
-                prop.SetValue(config, converted);
-            }
-        }
-
-        private static Dictionary<string, string?> ParseCliArgs(string[] args)
-        {
-            var dict = new Dictionary<string, string?>();
-
             for (int i = 0; i < args.Length; i++)
             {
                 var key = args[i];
@@ -85,12 +76,32 @@ namespace Vidmake.src.cli
                 if (!key.StartsWith('-'))
                     continue;
 
+                if(key == "--config") continue;
+
+                if (!options.TryGetValue(key, out (PropertyInfo, CliOptionAttribute) option))
+                    throw new ArgumentException("Unknown cli options: " + key);
+
+                var (property, attribute) = option;
+
+                string? value = null;
+
                 if (i + 1 < args.Length && !args[i + 1].StartsWith('-'))
-                    dict[key] = args[i + 1];
-                else
-                    dict[key] = null; // boolean flag
+                    value = args[i + 1];
+
+                object? converted = null;
+
+                if (property.PropertyType == typeof(bool))
+                {
+                    converted = string.IsNullOrEmpty(value) ? true : bool.Parse(value);
+                }
+                else if(value != null)
+                {
+                    converted = Convert.ChangeType(value, property.PropertyType);
+                }
+
+                attribute.Validate(converted);
+                property.SetValue(config, converted);
             }
-            return dict;
         }
     }
 }
