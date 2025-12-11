@@ -6,6 +6,28 @@ public class DrawableAreaExtremeTests
 {
     private Pixel MakePixel(byte value = 128) => new Pixel(value, value, value, value);
 
+    /// <summary>
+    /// Asserts that the buffer at the given x, y coordinates matches the pixel for the specified format.
+    /// </summary>
+    private void AssertPixelAt(byte[] buffer, int width, int x, int y, Pixel pixel, PixelFormat format)
+    {
+        int size = (int)format;
+        int idx = (y * width + x) * size;
+
+        Assert.Equal(pixel.R, buffer[idx]);
+
+        if (format == PixelFormat.RGB || format == PixelFormat.RGBA)
+        {
+            Assert.Equal(pixel.G, buffer[idx + 1]);
+            Assert.Equal(pixel.B, buffer[idx + 2]);
+        }
+
+        if (format == PixelFormat.RGBA)
+        {
+            Assert.Equal(pixel.A, buffer[idx + 3]);
+        }
+    }
+
     [Theory]
     [InlineData(PixelFormat.Grayscale)]
     [InlineData(PixelFormat.RGB)]
@@ -15,40 +37,21 @@ public class DrawableAreaExtremeTests
         var buffer = new byte[10 * 10 * (int)format];
         var area = new DrawableArea(buffer, 10, 10, -5, -5, 10, 10, format);
 
-        // Fill the subarea with a value
+        var fillPixel = MakePixel(255);
+
         for (int y = -5; y < 15; y++)
         {
             for (int x = -5; x < 15; x++)
-                area.SetPixel(x, y, MakePixel(255));
+                area.SetPixel(x, y, fillPixel);
         }
 
         for (int y = 0; y < 10; y++)
         {
             for (int x = 0; x < 10; x++)
             {
-                int idx = (y * 10 + x) * (int)format;
-                int imageX = x;
-                int imageY = y;
-                
-                if (imageX >= 0 && imageX < 5 && imageY >= 0 && imageY < 5)
-                {
-                    Assert.Equal(255, buffer[idx]);
-                    if (format == PixelFormat.RGB)
-                    {
-                        Assert.Equal(255, buffer[idx + 1]);
-                        Assert.Equal(255, buffer[idx + 2]);
-                    }
-                    else if (format == PixelFormat.RGBA)
-                    {
-                        Assert.Equal(255, buffer[idx + 1]);
-                        Assert.Equal(255, buffer[idx + 2]);
-                        Assert.Equal(255, buffer[idx + 3]);
-                    }
-                }
-                else
-                {
-                    Assert.Equal(0, buffer[idx]);
-                }
+                bool inWrittenArea = x < 5 && y < 5;
+                var expectedPixel = inWrittenArea ? fillPixel : MakePixel(0);
+                AssertPixelAt(buffer, 10, x, y, expectedPixel, format);
             }
         }
     }
@@ -65,18 +68,7 @@ public class DrawableAreaExtremeTests
 
         area.SetPixel(0, 0, pixel);
 
-        Assert.Equal(pixel.R, buffer[0]);
-        if (format == PixelFormat.RGB)
-        {
-            Assert.Equal(pixel.G, buffer[1]);
-            Assert.Equal(pixel.B, buffer[2]);
-        }
-        else if (format == PixelFormat.RGBA)
-        {
-            Assert.Equal(pixel.G, buffer[1]);
-            Assert.Equal(pixel.B, buffer[2]);
-            Assert.Equal(pixel.A, buffer[3]);
-        }
+        AssertPixelAt(buffer, 1, 0, 0, pixel, format);
     }
 
     [Theory]
@@ -96,30 +88,9 @@ public class DrawableAreaExtremeTests
         {
             for (int x = 0; x < 4; x++)
             {
-                int idx = (y * 4 + x) * size;
                 bool inWrittenArea = x >= 2 && y >= 2;
-                if (inWrittenArea)
-                {
-                    Assert.Equal(123, buffer[idx]);
-                    if (format == PixelFormat.RGB || format == PixelFormat.RGBA)
-                    {
-                        Assert.Equal(123, buffer[idx + 1]);
-                        Assert.Equal(123, buffer[idx + 2]);
-                    }
-                    if (format == PixelFormat.RGBA)
-                        Assert.Equal(123, buffer[idx + 3]);
-                }
-                else
-                {
-                    Assert.Equal(0, buffer[idx]);
-                    if (format == PixelFormat.RGB || format == PixelFormat.RGBA)
-                    {
-                        Assert.Equal(0, buffer[idx + 1]);
-                        Assert.Equal(0, buffer[idx + 2]);
-                    }
-                    if (format == PixelFormat.RGBA)
-                        Assert.Equal(0, buffer[idx + 3]);
-                }
+                var expectedPixel = inWrittenArea ? pixel : MakePixel(0);
+                AssertPixelAt(buffer, 4, x, y, expectedPixel, format);
             }
         }
     }
@@ -144,29 +115,9 @@ public class DrawableAreaExtremeTests
         {
             for (int x = 0; x < 5; x++)
             {
-                int idx = (y * 5 + x) * size;
-                if (y == 4 || x == 4)
-                {
-                    Assert.Equal(50, buffer[idx]);
-                    if (format == PixelFormat.RGB || format == PixelFormat.RGBA)
-                    {
-                        Assert.Equal(50, buffer[idx + 1]);
-                        Assert.Equal(50, buffer[idx + 2]);
-                    }
-                    if (format == PixelFormat.RGBA)
-                        Assert.Equal(50, buffer[idx + 3]);
-                }
-                else
-                {
-                    Assert.Equal(0, buffer[idx]);
-                    if (format == PixelFormat.RGB || format == PixelFormat.RGBA)
-                    {
-                        Assert.Equal(0, buffer[idx + 1]);
-                        Assert.Equal(0, buffer[idx + 2]);
-                    }
-                    if (format == PixelFormat.RGBA)
-                        Assert.Equal(0, buffer[idx + 3]);
-                }
+                bool inWrittenArea = y == 4 || x == 4;
+                var expectedPixel = inWrittenArea ? pixel : MakePixel(0);
+                AssertPixelAt(buffer, 5, x, y, expectedPixel, format);
             }
         }
     }
