@@ -74,10 +74,13 @@ namespace Vidmake.src.cli
                 var key = args[i];
 
                 if (!key.StartsWith('-'))
+                    throw new ArgumentException("Unexpected argument: " + key);
+
+                if(key == "--config"){
+                    i++;
                     continue;
-
-                if(key == "--config") continue;
-
+                }
+                
                 if (!options.TryGetValue(key, out (PropertyInfo, CliOptionAttribute) option))
                     throw new ArgumentException("Unknown cli options: " + key);
 
@@ -85,8 +88,11 @@ namespace Vidmake.src.cli
 
                 string? value = null;
 
-                if (i + 1 < args.Length && !args[i + 1].StartsWith('-'))
+                if (i + 1 < args.Length && !args[i + 1].StartsWith('-')) {
                     value = args[i + 1];
+                    i++;
+                }
+                
 
                 object? converted = null;
 

@@ -330,5 +330,25 @@ namespace Vidmake.src.tests
                 configLoader.Load(commandLineArguments);
             });
         }
+
+        public class TestConfig2
+        {
+            [JsonPropertyName("count")]
+            [CliOption("--count", "-c", "A positive integer value", ValidationType.MustBePositive)]
+            public int PositiveCount { get; set; }
+
+            [JsonPropertyName("count2")]
+            [CliOption("--count", "-c", "A positive integer value", ValidationType.MustBePositive)]
+            public int PositiveCount2 { get; set; }
+        }
+
+        [Fact]
+        public void Load_DuplicatesInConfigDefinition_ShouldThrow()
+        {
+            Assert.Throws<InvalidOperationException>(() =>
+            {
+                ConfigLoader<TestConfig2> configLoader = new ConfigLoader<TestConfig2>();
+            });
+        }
     }
 }

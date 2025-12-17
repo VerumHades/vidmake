@@ -12,7 +12,7 @@ public class VidmakeCliIntegrationTests
         Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..")
     );
 
-    private static readonly string VidmakeExe = Path.Combine(RootDir, "Vidmake", "bin", "Debug", "net9.0", "Vidmake.exe");
+    private static readonly string VidmakeExe = Path.Combine(RootDir, "Vidmake", "bin", "Debug", "net9.0", "Vidmake");
     private static readonly string ReleaseDir = Path.Combine(RootDir, "Vidmake", "template", "release");
     private static readonly string FfmpegDir = Path.Combine(RootDir, "Vidmake", "template");
     private static readonly string OutputDir = Path.Combine(RootDir, "Vidmake", "output");

@@ -13,45 +13,39 @@ static class Program
 {
     static void Main(string[] args)
     {
-        var consoleReporter = new ConsoleReporter(false);
-        var logger = new DomainReporter(consoleReporter);
-        var systemReporter = logger.NewReporter("system");
-
         VideoConfig? config;
         try {
             config = new ConfigLoader<VideoConfig>().Load(args);
         }
         catch(Exception ex)
         {
-            systemReporter.Error($"Failed to load configuration: {ex.Message}");
+            Console.WriteLine($"Failed to load configuration: {ex.Message}");
             return;
         }
-
-        consoleReporter.UseColors = config.ConsoleColorEnabled;
 
         if (string.IsNullOrEmpty(config.OutputFile) ||
             string.IsNullOrEmpty(config.FfmpegPath) ||
             string.IsNullOrEmpty(config.ScriptFile))
         {
-            systemReporter.Error("Missing required parameters: output-file, ffmpeg-path, script");
+            Console.WriteLine("Missing required parameters: output-file, ffmpeg-path, script");
             return;
         }
 
         if (!File.Exists(config.FfmpegPath))
         {
-            systemReporter.Error($"FFmpeg not found at {config.FfmpegPath}");
+            Console.WriteLine($"FFmpeg not found at {config.FfmpegPath}");
             return;
         }
 
         if (!PathChecking.CanCreateFileAtPath(config.OutputFile))
         {
-            systemReporter.Error($"Cannot create output file: {config.OutputFile}");
+             Console.WriteLine($"Cannot create output file: {config.OutputFile}");
             return;
         }
 
         if (!File.Exists(config.ScriptFile))
         {
-            systemReporter.Error($"Script file not found: {config.ScriptFile}");
+             Console.WriteLine($"Script file not found: {config.ScriptFile}");
             return;
         }
 
@@ -70,11 +64,8 @@ static class Program
                 config.FfmpegPath,
                 config.FfmpegHardwareAcceleration
             );
-            logger.Add("ffmpeg", videoWriter);
-            if(!config.FfmpegEcho) logger.Disable("ffmpeg");
 
-            var renderProbe = logger.Add("renderer", new RenderLoggingProbe());
-            var target = new RawRenderTarget(videoWriter, renderProbe, config.FrameBufferMaxSizeBytes);
+            var target = new RawRenderTarget(videoWriter, new RenderConsoleLoggingProbe(), config.FrameBufferMaxSizeBytes);
             var scene = new Scene(target);
 
             var invoker = new ScriptInvoker<Scene>(
@@ -94,25 +85,12 @@ static class Program
                     typeof(Plot2D).Assembly
                 }
             );
-            logger.Add("script", invoker);
 
             invoker.Execute(File.ReadAllText(config.ScriptFile));
         }
-        catch (InvalidOperationException ex)
-        {
-            systemReporter.Error($"Invalid operation: {ex.Message}");
-        }
-        catch (ArgumentOutOfRangeException ex)
-        {
-            systemReporter.Error($"Argument out of range: {ex.Message}");
-        }
-        catch (OverflowException ex)
-        {
-            systemReporter.Error($"Argument overflowed: {ex.Message}");
-        }
         catch (Exception ex)
         {
-            systemReporter.Error($"Unexpected exception: {ex.Message}");
+            Console.WriteLine($"Unexpected exception: {ex.Message}");
         }
     }
 }
