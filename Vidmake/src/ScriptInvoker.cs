@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Text;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.Scripting;
 using Vidmake.src.logging;
@@ -8,10 +9,9 @@ namespace Vidmake.src
     /// <summary>
     /// Handles execution of external C# scripts with access to a provided API.
     /// </summary>
-    public class ScriptInvoker<TApi>: IReportable where TApi : class
+    public class ScriptInvoker<TApi> where TApi : class
     {
         public TApi Api { get; }
-        public IReporter Reporter { get; set; } = NullReporter.Instance;
 
         private readonly IEnumerable<string> imports;
         private readonly IEnumerable<Assembly> references;
@@ -61,25 +61,28 @@ namespace Vidmake.src
             }
             catch (CompilationErrorException e)
             {
-                Reporter.Error(new string('=', 60));
-                Reporter.Error(" SCRIPT COMPILATION ERROR ");
-                Reporter.Error(new string('=', 60));
+                var builder = new StringBuilder();
+                
+                builder.AppendLine(new string('=', 60));
+                builder.AppendLine(" SCRIPT COMPILATION ERROR ");
+                builder.AppendLine(new string('=', 60));
 
                 foreach (var diag in e.Diagnostics)
-                    Reporter.Error($"  - {diag}");
+                    builder.AppendLine($"  - {diag}");
                 
-                throw;
+                throw new Exception(builder.ToString());
             }
             catch (Exception ex)
             {
-                Reporter.Error(new string('=', 60));
-                Reporter.Error(" SCRIPT EXECUTION ERROR ");
-                Reporter.Error(new string('=', 60));
+                var builder = new StringBuilder();
 
-                Reporter.Error($"  {ex.Message}");
+                builder.AppendLine(new string('=', 60));
+                builder.AppendLine(" SCRIPT EXECUTION ERROR ");
+                builder.AppendLine(new string('=', 60));
 
+                builder.AppendLine($"  {ex.Message}");
 
-                throw;
+                throw new Exception(builder.ToString());
             }
         }
     }

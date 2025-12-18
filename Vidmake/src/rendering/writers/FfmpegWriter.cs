@@ -7,14 +7,13 @@ namespace Vidmake.src.rendering.writers
     /// Implements IVideoWriter by streaming raw frames to an FFmpeg process.
     /// Supports RGB, RGBA, and Grayscale pixel formats.
     /// </summary>
-    public class FfmpegVideoWriter : IReportable, IVideoWriter, IDisposable
+    public class FfmpegVideoWriter : IVideoWriter, IDisposable
     {
         private readonly string ffmpegPath;
         private readonly Process ffmpegProcess;
         private readonly Stream ffmpegInputStream;
 
         public VideoFormat Format { get; }
-        public IReporter Reporter { get; set; } = NullReporter.Instance;
 
         /// <summary>
         /// Constructor. Starts an FFmpeg process and prepares it to receive raw frames.
@@ -44,7 +43,7 @@ namespace Vidmake.src.rendering.writers
                             $"\"{outputFilename}\"",
                     UseShellExecute = false,
                     RedirectStandardInput = true,
-                    RedirectStandardError = true,
+                    RedirectStandardError = false,
                     RedirectStandardOutput = false,
                     CreateNoWindow = true
                 }
@@ -57,41 +56,16 @@ namespace Vidmake.src.rendering.writers
             }
             catch (FileNotFoundException ex)
             {
-                Reporter.Error($"FFmpeg executable not found at path '{ffmpegPath}': {ex.Message}");
-                throw;
+                throw new FileNotFoundException($"FFmpeg executable not found at path '{ffmpegPath}': {ex.Message}");
             }
             catch (InvalidOperationException ex)
             {
-                Reporter.Error($"Invalid process start configuration: {ex.Message}");
-                throw;
+                throw new InvalidOperationException($"Invalid process start configuration: {ex.Message}");
             }
             catch (Exception ex)
             {
-                Reporter.Error($"Unexpected exception starting FFmpeg: {ex.Message}");
-                throw;
+                throw new Exception($"Unexpected exception starting FFmpeg: {ex.Message}");
             }
-
-            Task.Run(async () =>
-            {
-                try
-                {
-                    string? line;
-                    while ((line = await ffmpegProcess.StandardError.ReadLineAsync()) != null)
-                    {
-                        Reporter.Error(line);
-                    }
-                }
-                catch (ObjectDisposedException) {}
-                catch (IOException ex)
-                {
-                    Reporter.Error($"Error reading FFmpeg stderr: {ex.Message}");
-                }
-                catch (Exception ex)
-                {
-                    Reporter.Error($"Unexpected error reading FFmpeg stderr: {ex.Message}");
-                }
-            });
-
         }
 
         private string? GetHardwareEncoder()
@@ -134,7 +108,7 @@ namespace Vidmake.src.rendering.writers
             }
             catch (Exception ex)
             {
-                Reporter.Error("Error checking for ffmpeg hardware acceleration drivers: " + ex.Message);
+                throw new Exception("Error checking for ffmpeg hardware acceleration drivers: " + ex.Message);
             }
 
             return null; // none found
@@ -171,18 +145,15 @@ namespace Vidmake.src.rendering.writers
             }
             catch (ObjectDisposedException ex)
             {
-                Reporter.Error($"Cannot write to FFmpeg process, stream disposed: {ex.Message}");
-                throw;
+                throw new ObjectDisposedException($"Cannot write to FFmpeg process, stream disposed: {ex.Message}");
             }
             catch (IOException ex)
             {
-                Reporter.Error($"I/O error writing to FFmpeg: {ex.Message}");
-                throw;
+                throw new IOException($"I/O error writing to FFmpeg: {ex.Message}");
             }
             catch (Exception ex)
             {
-                Reporter.Error($"Unexpected error writing to FFmpeg: {ex.Message}");
-                throw;
+                throw new Exception($"Unexpected error writing to FFmpeg: {ex.Message}");
             }
         }
 
@@ -197,8 +168,7 @@ namespace Vidmake.src.rendering.writers
             }
             catch (Exception ex)
             {
-                Reporter.Warn($"Error flushing FFmpeg input: {ex.Message}");
-                throw;
+                throw new Exception($"Error flushing FFmpeg input: {ex.Message}");
             }
         }
 
@@ -211,7 +181,7 @@ namespace Vidmake.src.rendering.writers
             }
             catch (Exception ex)
             {
-                Reporter.Warn($"Error flushing/closing FFmpeg input: {ex.Message}");
+                Console.WriteLine($"Error flushing/closing FFmpeg input: {ex.Message}");
             }
 
             try
@@ -223,16 +193,16 @@ namespace Vidmake.src.rendering.writers
 
                 if (ffmpegProcess.ExitCode != 0)
                 {
-                    Reporter.Error($"FFmpeg exited with code {ffmpegProcess.ExitCode}.");
+                    Console.WriteLine($"FFmpeg exited with code {ffmpegProcess.ExitCode}.");
                 }
             }
             catch (InvalidOperationException ex)
             {
-                Reporter.Error($"Error checking FFmpeg exit status: {ex.Message}");
+                Console.WriteLine($"Error checking FFmpeg exit status: {ex.Message}");
             }
             catch (Exception ex)
             {
-                Reporter.Error($"Unexpected error during FFmpeg shutdown: {ex.Message}");
+                Console.WriteLine($"Unexpected error during FFmpeg shutdown: {ex.Message}");
             }
         }
 
