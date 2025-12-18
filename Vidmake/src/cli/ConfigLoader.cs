@@ -58,7 +58,7 @@ namespace Vidmake.src.cli
             return null;
         }
 
-        private T LoadFromJson(T existingConfig, string path)
+        public T LoadFromJson(T existingConfig, string path)
         {
             if (!File.Exists(path))
                 throw new FileNotFoundException($"Config file not found: {path}");
@@ -74,9 +74,12 @@ namespace Vidmake.src.cli
                 var key = args[i];
 
                 if (!key.StartsWith('-'))
-                    continue;
+                    throw new ArgumentException("Unexpected value: " + key);
 
-                if(key == "--config") continue;
+                if(key == "--config"){ 
+                    i++;
+                    continue;
+                }
 
                 if (!options.TryGetValue(key, out (PropertyInfo, CliOptionAttribute) option))
                     throw new ArgumentException("Unknown cli options: " + key);
@@ -85,8 +88,10 @@ namespace Vidmake.src.cli
 
                 string? value = null;
 
-                if (i + 1 < args.Length && !args[i + 1].StartsWith('-'))
+                if (i + 1 < args.Length && !args[i + 1].StartsWith('-')){
                     value = args[i + 1];
+                    i++;
+                }
 
                 object? converted = null;
 

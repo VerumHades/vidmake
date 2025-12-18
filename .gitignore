@@ -6,5 +6,8 @@ Vidmake/template/release/ffmpeg/
 Vidmake/template/ffmpeg/
 scripts/__pycache__/
 
-tests/bin/
-tests/obj/
+tests/Unit/bin/
+tests/Unit/obj/
+
+tests/Integration/bin/
+tests/Integration/obj/

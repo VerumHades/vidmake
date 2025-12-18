@@ -15,12 +15,12 @@ namespace Vidmake.src.logging
             {
                 var old = Console.ForegroundColor;
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine(message);
+                Console.Error.WriteLine(message);
                 Console.ForegroundColor = old;
             }
             else
             {
-                Console.WriteLine(message);
+                Console.Error.WriteLine(message);
             }
         }
 

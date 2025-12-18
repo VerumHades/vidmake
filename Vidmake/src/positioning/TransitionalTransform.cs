@@ -1,4 +1,5 @@
 using Vidmake.src.positioning.interpolators;
+using Vidmake.src.positioning.constraints;
 
 namespace Vidmake.src.positioning
 {
@@ -13,20 +14,24 @@ namespace Vidmake.src.positioning
         public TransitionalProperty<float> X { get; }
         public TransitionalProperty<float> Y { get; }
 
-        // Size properties
+        // Size properties (bound to be positive)
         public TransitionalProperty<float> Width { get; }
         public TransitionalProperty<float> Height { get; }
+
+        private static readonly PositiveComparableConstraint<float> PositiveFloatConstraint = new();
 
         /// <summary>
         /// Creates a new TransitionalTransform with starting values.
         /// Current and Next values for all properties are initialized to the same values.
+        /// Width and Height must be positive.
         /// </summary>
-        public TransitionalTransform(float x = 0, float y = 0, float width = 0, float height = 0)
+        public TransitionalTransform(float x = 0, float y = 0, float width = 1, float height = 1)
         {
             X = new TransitionalProperty<float>(x);
             Y = new TransitionalProperty<float>(y);
-            Width = new TransitionalProperty<float>(width);
-            Height = new TransitionalProperty<float>(height);
+
+            Width = new TransitionalProperty<float>(width, PositiveFloatConstraint);
+            Height = new TransitionalProperty<float>(height, PositiveFloatConstraint);
         }
 
         /// <summary>
@@ -64,7 +69,7 @@ namespace Vidmake.src.positioning
         }
 
         /// <summary>
-        /// Sets the next size.
+        /// Sets the next size (must be positive).
         /// </summary>
         public void Resize(float width, float height)
         {

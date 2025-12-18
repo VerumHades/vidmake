@@ -1,4 +1,5 @@
 using Vidmake.src.positioning;
+using Vidmake.src.positioning.constraints;
 using Vidmake.src.positioning.interpolators;
 using Vidmake.src.rendering;
 
@@ -19,7 +20,7 @@ namespace Vidmake.src.scene.elements
         public TransitionalProperty<Func<double, double>> SampledFunction = new((x) => x);
         public TransitionalProperty<Interval<double>> SampleInterval { get; } = new TransitionalProperty<Interval<double>>(new Interval<double>(-100, 100));
         public TransitionalProperty<Interval<double>> ValueInterval { get; } = new TransitionalProperty<Interval<double>>(new Interval<double>(-100, 100));
-        public TransitionalProperty<double> SampleStep { get; } = new TransitionalProperty<double>(0.01);
+        public TransitionalProperty<double> SampleStep { get; } = new TransitionalProperty<double>(0.01, new PositiveComparableConstraint<double>());
 
         public IInterpolator ValueIntervalInterpolator { get; } = LinearInterpolator.Instance;
         public IInterpolator SampleCountInterpolator { get; } = LinearInterpolator.Instance;

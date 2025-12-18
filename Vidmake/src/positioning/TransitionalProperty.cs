@@ -1,27 +1,38 @@
+using System;
+
 namespace Vidmake.src.positioning
 {
-    /// <summary>
-    /// Represents a property that holds a current value and a queued "next" value.
-    /// </summary>
-    /// <typeparam name="T">The type of the stored values.</typeparam>
-    public class TransitionalProperty<T>(T current)
+    public class TransitionalProperty<T>
     {
-        /// <summary>
-        /// Gets or sets the next value to be applied.
-        /// </summary>
-        public T Next { get; set; } = current;
+        private T current;
+        private T next;
+        private readonly IConstraint<T>? constraint;
 
-        /// <summary>
-        /// Gets the current active value.
-        /// </summary>
-        public T Current { get; private set; } = current;
+        public TransitionalProperty(T initialValue, IConstraint<T>? constraint = null)
+        {
+            this.constraint = constraint;
+            constraint?.Validate(initialValue);
 
-        /// <summary>
-        /// Applies the <see cref="Next"/> value to <see cref="Current"/>.
-        /// </summary>
+            current = initialValue;
+            next = initialValue;
+        }
+
+        public T Next
+        {
+            get => next;
+            set
+            {
+                constraint?.Validate(value);
+                next = value;
+            }
+        }
+
+        public T Current => current;
+
         public void ApplyNext()
         {
-            Current = Next;
+            constraint?.Validate(next);
+            current = next;
         }
     }
 }

@@ -14,7 +14,7 @@ Go(1);
 rect2.ZIndex.Value = 2;
 rect2.Move(300,200);
 rect.Move(300,200);
-Go(10);
+Go(1);
 
 var plot = Add(new Plot2D());
 plot.X.Next = 300;
