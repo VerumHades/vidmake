@@ -27,7 +27,7 @@ static class Program
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Failed to load configuration: {ex.Message}");
+            Console.Error.WriteLine($"Failed to load configuration: {ex.Message}");
             return ExitConfigError;
         }
 
@@ -35,28 +35,28 @@ static class Program
             string.IsNullOrEmpty(config.FfmpegPath) ||
             string.IsNullOrEmpty(config.ScriptFile))
         {
-            Console.WriteLine("Missing required parameters: output-file, ffmpeg-path, script");
+            Console.Error.WriteLine("Missing required parameters: output-file, ffmpeg-path, script");
             return ExitMissingParameters;
         }
 
         // Check FFmpeg executable
         if (!File.Exists(config.FfmpegPath))
         {
-            Console.WriteLine($"FFmpeg not found at {config.FfmpegPath}");
+            Console.Error.WriteLine($"FFmpeg not found at {config.FfmpegPath}");
             return ExitFileNotFound;
         }
 
         // Check output file path
         if (!PathChecking.CanCreateFileAtPath(config.OutputFile))
         {
-            Console.WriteLine($"Cannot create output file: {config.OutputFile}");
+            Console.Error.WriteLine($"Cannot create output file: {config.OutputFile}");
             return ExitInvalidOperation;
         }
 
         // Check script file exists
         if (!File.Exists(config.ScriptFile))
         {
-            Console.WriteLine($"Script file not found: {config.ScriptFile}");
+            Console.Error.WriteLine($"Script file not found: {config.ScriptFile}");
             return ExitFileNotFound;
         }
 
@@ -101,7 +101,7 @@ static class Program
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            Console.Error.WriteLine(ex.Message);
             return ExitError;
         }
 

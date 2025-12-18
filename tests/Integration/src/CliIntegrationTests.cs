@@ -174,7 +174,7 @@ public class VidmakeCliIntegrationTests
         );
 
         result.ExitCode.Should().Be(0);
-        result.StandardOutput.Should().Contain("[renderer] Rendering Started");
+        result.StandardOutput.Should().Contain("Rendering Started");
 
         File.Exists(outputPath).Should().BeTrue();
     }

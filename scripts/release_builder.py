@@ -14,7 +14,7 @@ RUNTIME = "win-x64"  # adjust if targeting another runtime
 
 TEMPLATE_RELEASE_DIR = os.path.join("Vidmake","template", "release")
 FFMPEG_DOWNLOAD_PATH = os.path.join("Vidmake","template", "ffmpeg")
-BUILD_OUTPUT_DIR = os.path.join("bin", CONFIGURATION, FRAMEWORK, RUNTIME)
+BUILD_OUTPUT_DIR = os.path.join("Vidmake", "bin", CONFIGURATION, FRAMEWORK, RUNTIME)
 ZIP_OUTPUT_FILE = "sample.zip"
 
 INCLUDE_FFMPEG = True
@@ -23,6 +23,8 @@ INCLUDE_FFMPEG = True
 # Helper Functions
 # -----------------------------
 def build_project():
+    os.chdir("Vidmake")
+
     """Builds the .NET project in Release mode for the specified runtime."""
     print(f"Publishing project: dotnet publish -c {CONFIGURATION} -r {RUNTIME}")
     result = subprocess.run([
@@ -34,17 +36,13 @@ def build_project():
             "/p:PublishSingleFile=true",
             #"/p:PublishTrimmed=true"
         ],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
         text=True
     )
     if result.returncode != 0:
         print("Build failed:")
-        print(result.stdout)
-        print(result.stderr)
         sys.exit(1)
     else:
-        print("Build succeeded.")
+        os.chdir("..")
 
 
 def find_ffmpeg_license(ffmpeg_dir: Path) -> Path:

@@ -11,3 +11,7 @@ tests/Integration/obj/
 
 tests/Unit/bin/
 tests/Unit/obj/
+
+sample.zip
+
+.vs/

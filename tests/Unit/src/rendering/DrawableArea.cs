@@ -117,7 +117,7 @@ public class DrawableAreaExtremeTests
             for (int x = 0; x < 5; x++)
             {
                 bool inWrittenArea = y == 4 || x == 4;
-                var expectedPixel = inWrittenArea ? pixel : emptyPixe;
+                var expectedPixel = inWrittenArea ? pixel : emptyPixel;
                 AssertPixelAt(buffer, 5, x, y, expectedPixel, format);
             }
         }
