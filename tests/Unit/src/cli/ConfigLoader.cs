@@ -160,13 +160,13 @@ namespace Vidmake.src.tests
         {
             string[] cliArgs =
             {
-            "--count", "8",
-            "--size-bytes", "555",
-            "--name", "OnlyCli",
-            "--path", "/cli",
-            "--ratio", "9",
-            "--enable-feature"
-        };
+                "--count", "8",
+                "--size-bytes", "555",
+                "--name", "OnlyCli",
+                "--path", "/cli",
+                "--ratio", "9",
+                "--enable-feature"
+            };
 
             ConfigLoader<TestConfig> configLoader = new ConfigLoader<TestConfig>();
             TestConfig loadedConfig = configLoader.Load(cliArgs);

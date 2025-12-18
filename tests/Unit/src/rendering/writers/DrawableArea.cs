@@ -104,6 +104,7 @@ public class DrawableAreaExtremeTests
         int size = (int)format;
         var buffer = new byte[5 * 5 * size];
         var pixel = MakePixel(50);
+        var emptyPixel = MakePixel(0);
         var area = new DrawableArea(buffer, 5, 5, 0, 0, 5, 5, format);
 
         area.SetRow(-1, pixel); // Should do nothing
@@ -116,7 +117,7 @@ public class DrawableAreaExtremeTests
             for (int x = 0; x < 5; x++)
             {
                 bool inWrittenArea = y == 4 || x == 4;
-                var expectedPixel = inWrittenArea ? pixel : MakePixel(0);
+                var expectedPixel = inWrittenArea ? pixel : emptyPixe;
                 AssertPixelAt(buffer, 5, x, y, expectedPixel, format);
             }
         }
